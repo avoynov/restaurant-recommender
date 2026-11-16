@@ -40,14 +40,13 @@ jobs:
           ref: data
           path: store
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: ingestion/pyproject.toml
+          node-version: "22"
 
-      - name: Install ingestion
-        run: pip install ./ingestion
+      - name: Test ingestion
+        working-directory: ingestion
+        run: npm test
 
       - name: Process pending requests
         env:
@@ -55,7 +54,7 @@ jobs:
           IG_MONTHLY_CAP_USD: ${{ vars.IG_MONTHLY_CAP_USD || '5' }}
         run: |
           mkdir -p requests
-          python -m ig_ingest.worker --requests requests --store store --public _site/data
+          node ingestion/src/worker.js --requests requests --store store --public _site/data
 
       - name: Save results to the data branch
         working-directory: store

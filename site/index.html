@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Taste Ingest</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#c2410c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Taste">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -94,7 +100,10 @@ footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
       <h1>Taste <em>Ingest</em></h1>
       <p class="sub">Share an Instagram post or a whole collection. We fetch it, save the photos and videos as our own files, and show them back from our copy.</p>
     </div>
-    <button class="ghost" id="settingsBtn" type="button">Access key</button>
+    <div class="actions" style="margin:0">
+      <button class="primary" id="installBtn" type="button" hidden>Install app</button>
+      <button class="ghost" id="settingsBtn" type="button">Access key</button>
+    </div>
   </header>
 
   <div class="card setup" id="setup">
@@ -106,6 +115,25 @@ footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
       <button class="primary" id="saveToken" type="button">Save</button>
       <button class="ghost" id="forgetToken" type="button">Forget</button>
       <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="align-self:center">Create a token</a>
+    </div>
+  </div>
+
+  <div class="card setup" id="installHelp">
+    <h2>Use it like an app</h2>
+    <div id="installAndroid">
+      <p><b>Android (Chrome):</b> tap <b>Install app</b> above, or the browser menu → <b>Install app</b>. After that, "Taste" appears in Instagram's <b>Share → Share to…</b> list: pick it and the post is fetched straight away.</p>
+    </div>
+    <div id="installIos">
+      <p><b>iPhone:</b> in Safari tap <b>Share → Add to Home Screen</b>. iPhone web apps can't appear in the share menu, so add this one-tap Shortcut for sharing:</p>
+      <ol class="hint" style="font-size:14px;line-height:1.6">
+        <li>Open <b>Shortcuts</b>, tap <b>+</b>, name it <b>Send to Taste</b>.</li>
+        <li>Tap the <b>ⓘ</b> button, turn on <b>Show in Share Sheet</b>, and set it to receive <b>URLs</b> and <b>Text</b>.</li>
+        <li>Add the action <b>URL Encode</b> (input: <i>Shortcut Input</i>).</li>
+        <li>Add <b>Text</b>: <code id="shortcutUrl"></code> followed by the <i>URL Encoded Text</i> variable.</li>
+        <li>Add <b>Open URLs</b> (input: that Text).</li>
+        <li>In Instagram: <b>Share → (more) → Send to Taste</b>.</li>
+      </ol>
+      <p class="hint">The Shortcut opens Safari, which keeps its own copy of the access key, so paste your token there once too.</p>
     </div>
   </div>
 
@@ -209,6 +237,21 @@ $("#settingsBtn").onclick = () => showSetup(!$("#setup").classList.contains("sho
 $("#saveToken").onclick = () => { const v = $("#token").value.trim(); if (v) { store.set("gh_token", v); showSetup(false); } };
 $("#forgetToken").onclick = () => { store.set("gh_token", null); $("#token").value = ""; showSetup(true); };
 showSetup();
+
+// ---- installable app --------------------------------------------------------------------------
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch((e) => console.warn("service worker:", e));
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+let installPrompt = null;
+$("#shortcutUrl").textContent = new URL("./?text=", location.href).href;
+$("#installAndroid").hidden = isIos;
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#installBtn").hidden = false; });
+window.addEventListener("appinstalled", () => { $("#installBtn").hidden = true; installPrompt = null; });
+if (isIos && !standalone) $("#installBtn").hidden = false;
+$("#installBtn").onclick = async () => {
+  if (installPrompt) { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; $("#installBtn").hidden = true; }
+  else { $("#installHelp").classList.add("show"); $("#installHelp").scrollIntoView({ behavior: "smooth" }); }
+};
 
 async function gh(path, opts = {}) {
   const r = await fetch(API + path, { ...opts, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token()}`, ...(opts.headers || {}) } });
@@ -474,6 +517,21 @@ async function openPost(code) {
 }
 $("#dlg").addEventListener("click", (e) => { if (e.target === $("#dlg")) $("#dlg").close(); });
 function alertBox(msg) { const el = $("#shareStatus"); say(el, esc(msg), "bad"); selectTab("share"); }
+
+// ---- shared from Instagram (Android share target, iOS Shortcut, or a plain ?text= link) ----------
+(function handleShare() {
+  const q = new URLSearchParams(location.search);
+  const blob = ["url", "text", "title"].map((k) => q.get(k) || "").join(" ");
+  const links = [...new Set((blob.match(/https?:\/\/(?:www\.)?(?:instagram\.com|instagr\.am)\/[^\s"'<>]+/g) || []))];
+  if (!q.has("url") && !q.has("text") && !q.has("title")) return;
+  history.replaceState(null, "", location.pathname); // don't resubmit on reload
+  selectTab("share");
+  const el = $("#shareStatus");
+  if (!links.length) { say(el, "That share didn't include an Instagram post link.", "bad"); return; }
+  $("#shareUrls").value = links.join("\n");
+  if (!token()) { showSetup(true); say(el, "Add your access key, then press Fetch and save.", "bad"); return; }
+  $("#shareGo").click();
+})();
 
 loadIndex();
 </script>
