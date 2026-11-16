@@ -136,6 +136,31 @@ class ApifyProvider:
                                          created_at=iso_utc(item.get("timestamp"))))
         return {c: top_comments(cs) for c, cs in out.items()}
 
+    def inspect_profiles(self, handles: list[str], max_charge_usd: float = 0.05) -> dict[str, dict | ProviderError]:
+        """Profile facts, mainly how many posts exist, so the user can approve a full scrape."""
+        urls = {profile_url(h): h for h in handles}
+        run_input = {"directUrls": list(urls), "resultsType": "details", "resultsLimit": 1}
+        items, _ = self._run(POSTS_ACTOR, run_input, max_charge_usd)
+        out: dict[str, dict | ProviderError] = {}
+        for item in items:
+            h = self._owner_handle({"inputUrl": item.get("inputUrl"), "ownerUsername": item.get("username")}, urls)
+            if h is None:
+                continue
+            if item.get("error"):
+                out[h] = _item_error(item)
+                continue
+            out[h] = {
+                "handle": h,
+                "full_name": item.get("fullName") or None,
+                "post_count": _int(item.get("postsCount")),
+                "private": bool(item.get("private")),
+                "is_business": item.get("isBusinessAccount"),
+                "verified": item.get("verified"),
+            }
+        for h in handles:
+            out.setdefault(h, Permanent("profile not found"))
+        return out
+
     def estimate_cost(self, n_posts: int, n_comments: int = 0) -> float:
         return round(n_posts * self.price_per_post + n_comments * self.price_per_comment, 4)
 

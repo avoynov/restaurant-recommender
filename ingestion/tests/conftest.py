@@ -29,14 +29,15 @@ class FakeApify:
             if self.fail_start:
                 return httpx.Response(self.fail_start, json={"error": {"type": "x", "message": "nope"}})
             actor = path.split("/acts/")[1].split("/")[0]
+            run_input = json.loads(request.content)
+            key = actor + ("~details" if run_input.get("resultsType") == "details" else "")
             run_id = f"run{len(self.runs)}"
-            self.runs.append({"actor": actor, "input": json.loads(request.content),
-                              "params": dict(request.url.params)})
-            return httpx.Response(201, json={"data": {"id": run_id, "status": "RUNNING", "defaultDatasetId": f"ds_{actor}"}})
+            self.runs.append({"actor": actor, "key": key, "input": run_input, "params": dict(request.url.params)})
+            return httpx.Response(201, json={"data": {"id": run_id, "status": "RUNNING", "defaultDatasetId": f"ds_{key}"}})
         if path.startswith("/v2/actor-runs/"):
             run_id = path.rsplit("/", 1)[1]
-            actor = self.runs[int(run_id[3:])]["actor"]
-            return httpx.Response(200, json={"data": {"id": run_id, "status": self.status, "defaultDatasetId": f"ds_{actor}"}})
+            key = self.runs[int(run_id[3:])]["key"]
+            return httpx.Response(200, json={"data": {"id": run_id, "status": self.status, "defaultDatasetId": f"ds_{key}"}})
         if path.startswith("/v2/datasets/"):
             actor = path.split("/")[3][3:]
             offset = int(request.url.params.get("offset", 0))
@@ -59,6 +60,10 @@ def fake_apify():
     return FakeApify({
         "apify~instagram-scraper": load("apify_profile_posts.json"),
         "apify~instagram-comment-scraper": load("apify_comments.json"),
+        "apify~instagram-scraper~details": [
+            {"inputUrl": "https://www.instagram.com/some.bistro/", "username": "some.bistro", "fullName": "Some Bistro",
+             "postsCount": 240, "private": False, "isBusinessAccount": True, "verified": False},
+        ],
     })
 
 

@@ -1,0 +1,81 @@
+# Runs the Instagram ingestion worker and publishes the Pages app.
+#
+# Triggered when the Pages app commits a request file to requests/, when the site or the
+# ingestion code changes, or by hand. Scraped data (database, statuses, photos and videos)
+# lives on the `data` branch so main stays small. Everything published here is public.
+name: Ingest and publish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "requests/**"
+      - "site/**"
+      - "ingestion/**"
+      - ".github/workflows/ingest.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # push to the data branch
+  pages: write      # deploy Pages
+  id-token: write   # required by deploy-pages
+
+concurrency:
+  group: ingest     # one run at a time; queued runs wait instead of being cancelled
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: store
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ingestion/pyproject.toml
+
+      - name: Install ingestion
+        run: pip install ./ingestion
+
+      - name: Process pending requests
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          IG_MONTHLY_CAP_USD: ${{ vars.IG_MONTHLY_CAP_USD || '5' }}
+        run: |
+          mkdir -p requests
+          python -m ig_ingest.worker --requests requests --store store --public _site/data
+
+      - name: Save results to the data branch
+        working-directory: store
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "nothing new"
+          else
+            git commit -qm "Ingest run ${{ github.run_number }}"
+            for i in 1 2 3; do git push origin HEAD:data && break; sleep $((i * 5)); git pull --rebase -q origin data; done
+          fi
+
+      - name: Build site
+        run: cp -r site/. _site/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

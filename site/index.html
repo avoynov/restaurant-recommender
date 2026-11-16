@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taste Ingest</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root {
+  --bg: #f7f3ec; --surface: #fffdf9; --ink: #1d1a16; --muted: #6f675c; --line: #e6ddcf;
+  --accent: #c2410c; --accent-ink: #fff; --ok: #3f7d4e; --warn: #b7791f; --bad: #b42318;
+  --radius: 14px; --shadow: 0 1px 2px rgba(40,30,20,.06), 0 8px 24px rgba(40,30,20,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14120f; --surface: #1d1a16; --ink: #f3ece2; --muted: #a59a8b; --line: #2f2a24;
+    --accent: #f97316; --accent-ink: #1d1a16; --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 Inter, system-ui, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header { padding: 40px 0 16px; display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+h1 { font: 600 clamp(30px, 5vw, 46px)/1.05 Fraunces, Georgia, serif; margin: 0; letter-spacing: -.01em; }
+h1 em { font-style: normal; color: var(--accent); }
+h2 { font: 600 22px/1.2 Fraunces, Georgia, serif; margin: 0 0 12px; }
+.sub { color: var(--muted); margin: 8px 0 0; max-width: 560px; }
+.tabs { display: flex; gap: 6px; margin: 20px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { background: none; border: 0; padding: 10px 14px; font: 500 15px Inter, sans-serif; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-color: var(--accent); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 16px; }
+label { display: block; font-weight: 500; margin: 12px 0 6px; }
+.hint { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+input[type=text], input[type=password], input[type=number], textarea {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; }
+textarea { min-height: 84px; resize: vertical; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+.row > * { flex: 1 1 180px; }
+button.primary, button.ghost { border-radius: 999px; padding: 10px 18px; font: 600 14px Inter, sans-serif; cursor: pointer; border: 1px solid var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); }
+button.ghost { background: transparent; color: var(--accent); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--line); color: var(--ink); }
+.pill.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.pill.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.pill.bad { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
+.status { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: var(--bg); border: 1px dashed var(--line); display: none; }
+.status.show { display: block; }
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; vertical-align: -1px; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; cursor: pointer; text-align: left; padding: 0; color: inherit; font: inherit; }
+.tile .img { aspect-ratio: 4/5; background: var(--line) center/cover; position: relative; }
+.tile .img .badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,.6); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.tile .meta { padding: 10px 12px; }
+.tile .who { font-weight: 600; font-size: 13px; }
+.tile .cap { color: var(--muted); font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.empty { color: var(--muted); padding: 32px; text-align: center; }
+dialog { border: 0; border-radius: var(--radius); padding: 0; width: min(980px, calc(100vw - 32px)); max-height: calc(100vh - 32px); background: var(--surface); color: var(--ink); }
+dialog::backdrop { background: rgba(20,15,10,.6); }
+.detail { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+@media (max-width: 760px) { .detail { grid-template-columns: 1fr; } }
+.media { background: #000; position: relative; min-height: 280px; display: flex; align-items: center; justify-content: center; }
+.media img, .media video { max-width: 100%; max-height: 72vh; display: block; }
+.media .nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.85); border: 0; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 18px; }
+.media .prev { left: 10px; } .media .next { right: 10px; }
+.media .count { position: absolute; bottom: 10px; right: 10px; color: #fff; background: rgba(0,0,0,.55); border-radius: 999px; padding: 2px 10px; font-size: 12px; }
+.info { padding: 20px; overflow: auto; max-height: 80vh; }
+.info .close { float: right; background: none; border: 0; font-size: 22px; cursor: pointer; color: var(--muted); }
+.kv { display: grid; grid-template-columns: 110px 1fr; gap: 4px 10px; font-size: 13px; margin: 12px 0; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; word-break: break-word; }
+.comments { list-style: none; padding: 0; margin: 8px 0; }
+.comments li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.comments .likes { color: var(--muted); font-size: 12px; }
+.saved { font-size: 12px; color: var(--ok); margin-top: 6px; }
+table.list { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.list td, table.list th { padding: 8px 6px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+table.list th { color: var(--muted); font-weight: 500; border-top: 0; }
+.coll { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
+.setup { display: none; } .setup.show { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Taste <em>Ingest</em></h1>
+      <p class="sub">Share an Instagram post or a whole collection. We fetch it, save the photos and videos as our own files, and show them back from our copy.</p>
+    </div>
+    <button class="ghost" id="settingsBtn" type="button">Access key</button>
+  </header>
+
+  <div class="card setup" id="setup">
+    <h2>Connect this page to the runner</h2>
+    <p class="hint">Requests are sent by saving a small file to the repository, which starts the scraper in GitHub Actions. That needs a GitHub fine-grained token with <b>Contents: Read and write</b> on <code id="repoName"></code> only. It is stored in this browser and nowhere else.</p>
+    <label for="token">GitHub token</label>
+    <input type="password" id="token" placeholder="github_pat_..." autocomplete="off">
+    <div class="actions">
+      <button class="primary" id="saveToken" type="button">Save</button>
+      <button class="ghost" id="forgetToken" type="button">Forget</button>
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="align-self:center">Create a token</a>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="share" aria-selected="true">Share a post</button>
+    <button class="tab" role="tab" data-tab="collection" aria-selected="false">Collection</button>
+    <button class="tab" role="tab" data-tab="library" aria-selected="false">Saved posts <span id="libCount" class="pill">0</span></button>
+    <button class="tab" role="tab" data-tab="runs" aria-selected="false">Runs</button>
+  </nav>
+
+  <!-- Share -->
+  <section data-panel="share">
+    <div class="card">
+      <h2>Share a post or reel</h2>
+      <label for="shareUrls">Instagram link(s), one per line</label>
+      <textarea id="shareUrls" placeholder="https://www.instagram.com/reel/..."></textarea>
+      <div class="row">
+        <div><label for="shareN">Top comments to keep</label><input type="number" id="shareN" min="0" max="50" value="10">
+          <p class="hint">Up to 10 come free with each post. Each extra comment costs about $0.0026.</p></div>
+        <div><label><input type="checkbox" id="shareVideo" checked> Save full videos</label>
+          <p class="hint">Off saves photos and video cover images only.</p></div>
+      </div>
+      <div class="actions"><button class="primary" id="shareGo" type="button">Fetch and save</button></div>
+      <div class="status" id="shareStatus"></div>
+    </div>
+  </section>
+
+  <!-- Collection -->
+  <section data-panel="collection" hidden>
+    <div class="card">
+      <h2>From a profile</h2>
+      <p class="hint">Count a public profile's posts first. Nothing is scraped until you press Proceed.</p>
+      <div class="row">
+        <div><label for="profHandle">Handle or profile link</label><input type="text" id="profHandle" placeholder="@some.bistro"></div>
+        <div style="flex:0 0 auto"><button class="ghost" id="profCount" type="button">Count posts</button></div>
+      </div>
+      <div class="status" id="profStatus"></div>
+      <div id="profProceed" hidden>
+        <div class="row">
+          <div><label for="profLimit">Posts to fetch (newest first, max 500)</label><input type="number" id="profLimit" min="1" max="500"></div>
+          <div><label for="profN">Top comments to keep</label><input type="number" id="profN" min="0" max="50" value="10"></div>
+        </div>
+        <p class="hint" id="profEstimate"></p>
+        <div class="actions"><button class="primary" id="profGo" type="button">Proceed</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>From your saved collections</h2>
+      <p class="hint">Instagram only shows saved collections to their owner, so we can't open a collection link without logging in (which we never do). Instead, download your data from Instagram (Accounts Center → Your information and permissions → Export your information → Saved, format <b>JSON</b>) and drop the ZIP or <code>saved_collections.json</code> / <code>saved_posts.json</code> here. It is read in your browser; only the post links are sent.</p>
+      <input type="file" id="exportFile" accept=".zip,.json">
+      <div id="collections"></div>
+      <div class="status" id="collStatus"></div>
+    </div>
+  </section>
+
+  <!-- Library -->
+  <section data-panel="library" hidden>
+    <div class="row" style="margin-bottom:14px">
+      <div><input type="text" id="libFilter" placeholder="Filter by account, caption or collection"></div>
+      <div style="flex:0 0 auto"><button class="ghost" id="libRefresh" type="button">Refresh</button></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- Runs -->
+  <section data-panel="runs" hidden>
+    <div class="card"><h2>Recent requests</h2><div id="runsTable"></div>
+      <p class="hint" id="spend"></p></div>
+  </section>
+
+  <footer>
+    Prototype. Data and media on this site are public. Logged-out scraping of public posts only, via Apify.
+    <span id="generated"></span>
+  </footer>
+</div>
+
+<dialog id="dlg"><div class="detail"><div class="media" id="dMedia"></div><div class="info" id="dInfo"></div></div></dialog>
+
+<script>
+"use strict";
+// ---- repo + token ---------------------------------------------------------------------------
+const REPO = (() => {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  const path = location.pathname.split("/").filter(Boolean)[0];
+  return m && path ? `${m[1]}/${path}` : "avoynov/restaurant-recommender";
+})();
+const API = "https://api.github.com";
+const DATA = "data/";  // published by the workflow next to this page
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+$("#repoName").textContent = REPO;
+
+function token() { return store.get("gh_token"); }
+function showSetup(force) { $("#setup").classList.toggle("show", force ?? !token()); }
+$("#settingsBtn").onclick = () => showSetup(!$("#setup").classList.contains("show"));
+$("#saveToken").onclick = () => { const v = $("#token").value.trim(); if (v) { store.set("gh_token", v); showSetup(false); } };
+$("#forgetToken").onclick = () => { store.set("gh_token", null); $("#token").value = ""; showSetup(true); };
+showSetup();
+
+async function gh(path, opts = {}) {
+  const r = await fetch(API + path, { ...opts, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token()}`, ...(opts.headers || {}) } });
+  if (!r.ok) {
+    const body = await r.json().catch(() => ({}));
+    const err = new Error(`GitHub ${r.status}: ${body.message || r.statusText}`); err.status = r.status; throw err;
+  }
+  return r.status === 204 ? null : r.json();
+}
+const b64 = (s) => { const bytes = new TextEncoder().encode(s); let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); };
+
+// ---- tabs -----------------------------------------------------------------------------------
+document.querySelectorAll(".tab").forEach((t) => t.onclick = () => selectTab(t.dataset.tab));
+function selectTab(name) {
+  document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", t.dataset.tab === name));
+  document.querySelectorAll("[data-panel]").forEach((p) => p.hidden = p.dataset.panel !== name);
+  store.set("tab", name);
+}
+selectTab(store.get("tab") || "share");
+
+// ---- requests -------------------------------------------------------------------------------
+function newId(kind) {
+  const d = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
+  return `${d}-${kind}-${Math.random().toString(36).slice(2, 6)}`;
+}
+async function submit(kind, body, statusEl) {
+  if (!token()) { showSetup(true); throw new Error("Add a GitHub token first (Access key)."); }
+  const id = newId(kind);
+  const req = { id, kind, created_at: new Date().toISOString(), ...body };
+  await gh(`/repos/${REPO}/contents/requests/${id}.json`, {
+    method: "PUT", body: JSON.stringify({ message: `Request ${id}`, content: b64(JSON.stringify(req, null, 1)) }),
+  });
+  return waitFor(id, statusEl);
+}
+function say(el, html, cls = "") { el.className = "status show " + cls; el.innerHTML = html; }
+
+async function waitFor(id, el) {
+  const t0 = Date.now();
+  say(el, `<span class="spinner"></span>Sent. Waiting for the runner to pick it up…`);
+  // 1) wait for the status file on the data branch
+  let st = null;
+  while (Date.now() - t0 < 30 * 60e3) {
+    await sleep(8000);
+    try {
+      const f = await gh(`/repos/${REPO}/contents/status/${id}.json?ref=data&t=${Date.now()}`);
+      st = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(f.content.replace(/\n/g, "")), (c) => c.charCodeAt(0))));
+      if (st.state === "done" || st.state === "failed") break;
+    } catch (e) { if (e.status !== 404) console.warn(e); }
+    const secs = Math.round((Date.now() - t0) / 1000);
+    say(el, `<span class="spinner"></span>Running in GitHub Actions… ${secs}s. Fetching, then saving media to the repository.`);
+  }
+  if (!st) { say(el, "Still running after 30 minutes. Check the Runs tab later.", "bad"); return null; }
+  if (st.state === "failed") { say(el, `Failed: ${esc(st.error)}`, "bad"); return st; }
+  // 2) wait for Pages to publish the new data
+  say(el, `<span class="spinner"></span>Saved. Publishing to this page…`);
+  while (Date.now() - t0 < 40 * 60e3) {
+    const idx = await loadIndex();
+    if (idx && (idx.requests || []).some((r) => r.id === id && r.state === "done")) break;
+    await sleep(8000);
+  }
+  return st;
+}
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function resultSummary(st) {
+  const posts = st.posts || {};
+  const codes = Object.keys(posts);
+  const ok = codes.filter((c) => posts[c].startsWith("COMPLETE")).length;
+  let html = `<b>${ok} of ${codes.length}</b> post(s) saved completely · spent $${(st.spent_usd || 0).toFixed(4)}`;
+  if ((st.rejected || []).length) html += `<br><span class="hint">Skipped: ${st.rejected.map(esc).join("; ")}</span>`;
+  if ((st.media_errors || []).length) html += `<br><span class="hint">Media errors: ${st.media_errors.length}</span>`;
+  html += `<div class="actions">${codes.slice(0, 6).map((c) => `<button class="ghost" type="button" data-open="${esc(c)}">Open ${esc(c)}</button>`).join("")}</div>`;
+  return html;
+}
+document.addEventListener("click", (e) => { const c = e.target.closest("[data-open]"); if (c) openPost(c.dataset.open); });
+
+// Share
+$("#shareGo").onclick = async () => {
+  const urls = $("#shareUrls").value.split(/\s+/).map((s) => s.trim()).filter(Boolean);
+  const el = $("#shareStatus");
+  if (!urls.length) return say(el, "Paste at least one post or reel link.", "bad");
+  $("#shareGo").disabled = true;
+  try {
+    const st = await submit("posts", { urls, comments: +$("#shareN").value || 0, media: $("#shareVideo").checked ? "all" : "covers" }, el);
+    if (st && st.state === "done") { say(el, resultSummary(st), "ok"); if (Object.keys(st.posts || {}).length === 1) openPost(Object.keys(st.posts)[0]); }
+  } catch (e) { say(el, esc(e.message), "bad"); }
+  $("#shareGo").disabled = false;
+};
+
+// Profile: count, then proceed
+let inspected = null;
+$("#profCount").onclick = async () => {
+  const handle = $("#profHandle").value.trim(); const el = $("#profStatus");
+  if (!handle) return say(el, "Enter a handle.", "bad");
+  $("#profCount").disabled = true; $("#profProceed").hidden = true;
+  try {
+    const st = await submit("inspect", { handle, comments: +$("#profN").value || 10 }, el);
+    if (st && st.state === "done") {
+      inspected = st.profile;
+      const p = st.profile;
+      say(el, `<b>@${esc(p.handle)}</b>${p.full_name ? " · " + esc(p.full_name) : ""} has <b>${p.post_count ?? "?"}</b> posts${p.private ? ' <span class="pill bad">private</span>' : ""}.`, p.private ? "bad" : "ok");
+      if (!p.private) { $("#profLimit").value = Math.min(p.post_count || 12, 500); updateEstimate(); $("#profProceed").hidden = false; }
+    }
+  } catch (e) { say(el, esc(e.message), "bad"); }
+  $("#profCount").disabled = false;
+};
+function estimate(n, comments) { return n * (0.0027 + Math.max(0, comments - 10) * 0.0026); }
+function updateEstimate() {
+  const n = +$("#profLimit").value || 0, c = +$("#profN").value || 0;
+  $("#profEstimate").textContent = `Estimated Apify cost: about $${estimate(n, c).toFixed(2)} for ${n} posts with ${c} comments each (free plan includes $5 a month).`;
+}
+$("#profLimit").oninput = updateEstimate; $("#profN").oninput = updateEstimate;
+$("#profGo").onclick = async () => {
+  if (!inspected) return;
+  const el = $("#profStatus"); $("#profGo").disabled = true;
+  const limit = Math.max(1, Math.min(500, +$("#profLimit").value || 12)), comments = +$("#profN").value || 0;
+  try {
+    const st = await submit("profile", { handle: inspected.handle, limit, comments, media: "all", label: "@" + inspected.handle, budget_usd: Math.max(1, +(estimate(limit, comments) * 1.3).toFixed(2)) }, el);
+    if (st && st.state === "done") say(el, resultSummary(st), "ok");
+  } catch (e) { say(el, esc(e.message), "bad"); }
+  $("#profGo").disabled = false;
+};
+
+// Export upload: parse saved collections in the browser
+const POST_RE = /instagram\.com\/(?:[A-Za-z0-9._]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]{5,})/;
+$("#exportFile").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const el = $("#collStatus");
+  try {
+    const files = {};
+    if (f.name.endsWith(".zip")) {
+      const zip = await JSZip.loadAsync(f);
+      for (const name of Object.keys(zip.files)) {
+        const base = name.split("/").pop();
+        if (base === "saved_collections.json" || base === "saved_posts.json") files[base] = JSON.parse(await zip.files[name].async("string"));
+      }
+      if (!Object.keys(files).length) {
+        const html = Object.keys(zip.files).some((n) => n.endsWith("saved_posts.html"));
+        throw new Error(html ? "This export is in HTML. Request it again with format JSON." : "No saved_posts.json or saved_collections.json in this ZIP.");
+      }
+    } else {
+      files[f.name] = JSON.parse(await f.text());
+    }
+    renderCollections(parseExport(files));
+    el.className = "status";
+  } catch (err) { say(el, esc(err.message), "bad"); }
+};
+function parseExport(files) {
+  const groups = new Map();
+  const add = (name, url) => { const m = url && url.match(POST_RE); if (!m) return; if (!groups.has(name)) groups.set(name, new Set()); groups.get(name).add(`https://www.instagram.com/p/${m[1]}/`); };
+  for (const [fname, data] of Object.entries(files)) {
+    const isColl = fname.includes("collections");
+    let current = isColl ? "Unnamed collection" : "All saved posts";
+    const items = data.saved_saved_collections || data.saved_saved_media || (Array.isArray(data) ? data : Object.values(data).find(Array.isArray) || []);
+    for (const it of items) {
+      const smd = it.string_map_data || {};
+      const nameField = smd.Name || smd.name;
+      const urls = [];
+      (function walk(o) { if (!o || typeof o !== "object") return; for (const v of Object.values(o)) { if (typeof v === "string" && POST_RE.test(v)) urls.push(v); else walk(v); } })(it);
+      if (isColl && nameField && nameField.value && !urls.length) { current = nameField.value; continue; }
+      if (isColl && it.title && !urls.length && !nameField) { current = it.title; continue; }
+      urls.forEach((u) => add(current, u));
+    }
+  }
+  return [...groups].map(([name, set]) => ({ name, urls: [...set] }));
+}
+function renderCollections(groups) {
+  const box = $("#collections");
+  if (!groups.length) { box.innerHTML = `<p class="empty">No post links found in that file.</p>`; return; }
+  box.innerHTML = `<div class="row" style="margin-top:12px"><div><label for="collN">Top comments to keep</label><input type="number" id="collN" min="0" max="50" value="10"></div></div>` +
+    groups.map((g, i) => `<div class="coll"><div><b>${esc(g.name)}</b><br><span class="hint">${g.urls.length} post${g.urls.length === 1 ? "" : "s"} · about $${estimate(g.urls.length, 10).toFixed(2)}</span></div>
+      <button class="primary" type="button" data-coll="${i}">Proceed</button></div>`).join("");
+  box.querySelectorAll("[data-coll]").forEach((b) => b.onclick = async () => {
+    const g = groups[+b.dataset.coll]; const el = $("#collStatus"); b.disabled = true;
+    const comments = +$("#collN").value || 0;
+    try {
+      const st = await submit("posts", { urls: g.urls.slice(0, 500), comments, media: "all", label: g.name, budget_usd: Math.max(1, +(estimate(g.urls.length, comments) * 1.3).toFixed(2)) }, el);
+      if (st && st.state === "done") say(el, `<b>${esc(g.name)}</b>: ` + resultSummary(st), "ok");
+    } catch (e) { say(el, esc(e.message), "bad"); }
+    b.disabled = false;
+  });
+}
+
+// ---- library --------------------------------------------------------------------------------
+let INDEX = null;
+async function loadIndex() {
+  try {
+    const r = await fetch(`${DATA}index.json?t=${Date.now()}`, { cache: "no-store" });
+    if (!r.ok) return null;
+    INDEX = await r.json();
+    renderLibrary(); renderRuns();
+    return INDEX;
+  } catch { return null; }
+}
+function renderLibrary() {
+  const posts = (INDEX && INDEX.posts) || [];
+  $("#libCount").textContent = posts.length;
+  const q = $("#libFilter").value.trim().toLowerCase();
+  const shown = posts.filter((p) => !q || [p.author, p.caption, p.location, ...(p.sources || []).map((s) => s.handle)].join(" ").toLowerCase().includes(q));
+  $("#grid").innerHTML = shown.length ? shown.map((p) => `
+    <button class="tile" type="button" data-open="${esc(p.shortcode)}">
+      <div class="img" style="background-image:url('${p.thumb ? DATA + esc(p.thumb) : ""}')">
+        ${p.has_video ? '<span class="badge">▶ video saved</span>' : p.n_media > 1 ? `<span class="badge">${p.n_media} items</span>` : ""}
+      </div>
+      <div class="meta"><div class="who">@${esc(p.author || "?")} ${p.status === "COMPLETE" ? "" : '<span class="pill warn">partial</span>'}</div>
+      <div class="cap">${esc(p.caption || "No caption")}</div></div>
+    </button>`).join("") : `<p class="empty">${posts.length ? "Nothing matches." : "Nothing saved yet. Share a post to start."}</p>`;
+  if (INDEX) $("#generated").textContent = `· Data updated ${new Date(INDEX.generated_at).toLocaleString()}`;
+}
+$("#libFilter").oninput = renderLibrary;
+$("#libRefresh").onclick = loadIndex;
+
+function renderRuns() {
+  const reqs = (INDEX && INDEX.requests) || [];
+  $("#runsTable").innerHTML = reqs.length ? `<table class="list"><tr><th>When</th><th>Kind</th><th>State</th><th>Result</th></tr>` +
+    reqs.map((r) => `<tr><td>${esc((r.finished_at || r.started_at || "").replace("T", " ").replace("Z", ""))}</td><td>${esc(r.kind)}</td>
+      <td><span class="pill ${r.state === "done" ? "ok" : r.state === "failed" ? "bad" : "warn"}">${esc(r.state)}</span></td>
+      <td>${r.error ? esc(r.error) : r.profile ? `@${esc(r.profile.handle)}: ${r.profile.post_count} posts` : `${Object.keys(r.posts || {}).length} posts · $${(r.spent_usd || 0).toFixed(4)}`}</td></tr>`).join("") + `</table>`
+    : `<p class="empty">No runs yet.</p>`;
+  if (INDEX) $("#spend").textContent = `Apify spend this month: $${(INDEX.spend || 0).toFixed(2)} of the $5 cap.`;
+}
+
+// ---- post detail ----------------------------------------------------------------------------
+async function openPost(code) {
+  const r = await fetch(`${DATA}posts/${encodeURIComponent(code)}.json?t=${Date.now()}`, { cache: "no-store" });
+  if (!r.ok) { alertBox(`Post ${code} isn't published yet. Try Refresh in a minute.`); return; }
+  const rec = await r.json(); const p = rec.post;
+  const media = p.media || []; let i = 0;
+  const show = () => {
+    const m = media[i]; const box = $("#dMedia");
+    if (!m) { box.innerHTML = `<p style="color:#fff">No media saved</p>`; return; }
+    const src = m.storage_key ? DATA + m.storage_key : m.cover_storage_key ? DATA + m.cover_storage_key : "";
+    const poster = m.cover_storage_key ? DATA + m.cover_storage_key : "";
+    box.innerHTML = (m.kind === "video" && m.storage_key
+      ? `<video src="${esc(src)}" poster="${esc(poster)}" controls playsinline preload="metadata"></video>`
+      : src ? `<img src="${esc(src)}" alt="">` : `<p style="color:#fff">Not saved</p>`) +
+      (media.length > 1 ? `<button class="nav prev" type="button" aria-label="Previous">‹</button><button class="nav next" type="button" aria-label="Next">›</button><span class="count">${i + 1} / ${media.length}</span>` : "");
+    box.querySelector(".prev")?.addEventListener("click", () => { i = (i + media.length - 1) % media.length; show(); });
+    box.querySelector(".next")?.addEventListener("click", () => { i = (i + 1) % media.length; show(); });
+    const saved = $("#dSaved");
+    if (saved) saved.innerHTML = m.storage_key ? `✓ Served from our saved file <code>${esc(m.storage_key)}</code>${m.bytes ? ` (${(m.bytes / 1048576).toFixed(1)} MB, ${esc(m.mime)})` : ""}` : m.cover_storage_key ? `✓ Cover saved as <code>${esc(m.cover_storage_key)}</code>; full video not saved` : "Not saved";
+  };
+  const loc = p.location;
+  $("#dInfo").innerHTML = `
+    <button class="close" type="button" aria-label="Close">×</button>
+    <h2>@${esc(p.author?.username || "?")}</h2>
+    <p style="white-space:pre-wrap">${esc(p.caption || "No caption")}</p>
+    <div class="saved" id="dSaved"></div>
+    <dl class="kv">
+      <dt>Type</dt><dd>${esc(p.type)} · ${media.length} item(s)</dd>
+      <dt>Posted</dt><dd>${esc(p.posted_at?.replace("T", " ").replace("Z", " UTC") || "unknown")}</dd>
+      <dt>Location</dt><dd>${loc ? esc(loc.name) : "No location tag"}</dd>
+      <dt>Hashtags</dt><dd>${esc((p.hashtags || []).join(" ") || "none")}</dd>
+      <dt>Stats</dt><dd>${p.stats?.like_count ?? "?"} likes · ${p.stats?.comment_count ?? "?"} comments${p.stats?.view_count ? ` · ${p.stats.view_count} plays` : ""}</dd>
+      <dt>Status</dt><dd><span class="pill ${rec.status === "COMPLETE" ? "ok" : "warn"}">${esc(rec.status)}</span> ${rec.missing?.length ? "missing: " + esc(rec.missing.join(", ")) : ""}</dd>
+      <dt>Record</dt><dd><a href="${DATA}posts/${esc(p.shortcode)}.json" target="_blank" rel="noopener">JSON for the AI step</a> · <a href="${esc(p.url)}" target="_blank" rel="noopener">original</a></dd>
+    </dl>
+    <h2 style="font-size:17px">Top comments (${(p.comments || []).length})</h2>
+    <ul class="comments">${(p.comments || []).map((c) => `<li>${esc(c.text)} <span class="likes">♥ ${c.like_count ?? 0}</span></li>`).join("") || "<li class='hint'>None</li>"}</ul>`;
+  $("#dInfo .close").onclick = () => $("#dlg").close();
+  show();
+  $("#dlg").showModal();
+}
+$("#dlg").addEventListener("click", (e) => { if (e.target === $("#dlg")) $("#dlg").close(); });
+function alertBox(msg) { const el = $("#shareStatus"); say(el, esc(msg), "bad"); selectTab("share"); }
+
+loadIndex();
+</script>
+</body>
+</html>
