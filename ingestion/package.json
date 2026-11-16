@@ -1,0 +1,13 @@
+{
+  "name": "ig-ingest",
+  "version": "0.2.0",
+  "description": "Instagram ingestion prototype: public handles or post links in, normalized post records and saved media out.",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "bin": { "ig-ingest": "src/cli.js" },
+  "scripts": {
+    "test": "node --test",
+    "worker": "node src/worker.js"
+  }
+}
