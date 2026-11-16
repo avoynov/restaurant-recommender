@@ -17,6 +17,11 @@ tastes overlap, and recommends restaurants.
 3. The workflow publishes the site plus the saved data to GitHub Pages. The app shows the post with
    media served from the published copy, not from Instagram.
 
+**Install it like an app.** The site is a Progressive Web App. On Android (Chrome), install it and
+"Taste" appears in Instagram's Share menu; sharing a post fetches it straight away. On iPhone, add it
+to the Home Screen and use the "Send to Taste" Shortcut described on the page (iPhone web apps can't
+join the share menu).
+
 **Everything on Pages is public** (the repository is public). Use it for testing with posts you are
 comfortable re-showing.
 
