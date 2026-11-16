@@ -1,122 +1,56 @@
-# ig-ingest
+# ingestion
 
-Ingestion prototype for the restaurant recommendation app. Give it public Instagram
-handles (or post URLs); it fetches their posts, normalizes each one into the handoff
-record from the design doc (`schema_version` 1.0), downloads media, and stores
-everything for the separate **Dataset Population** module.
+Fetches public Instagram posts (by post link, profile or saved-collection export), normalizes
+each one into the handoff record from the design doc (`schema_version` 1.0), and saves photos
+and videos as our own files for the Dataset Population step.
 
-Logged-out only. No Instagram accounts, no burner logins.
+Node 20+, no dependencies. Logged-out only: no Instagram accounts, no burner logins.
 
 ## Quick start
 
 ```bash
-pip install -e '.[free,dev]'
-cp .env.example .env          # put your APIFY_TOKEN in it (or set it as an environment variable)
-ig-ingest doctor              # checks token, network, tools
-ig-ingest fetch nasa some.bistro --limit 12 --dry-run   # cost estimate, nothing fetched
-ig-ingest fetch nasa some.bistro --limit 12
-ig-ingest status
-ig-ingest export              # data/export/posts.jsonl
-ig-ingest show <shortcode>
+cd ingestion
+cp .env.example .env              # add APIFY_TOKEN
+node src/cli.js doctor            # checks token and network
+node src/cli.js fetch some.bistro https://www.instagram.com/reel/XXXX/ --limit 12 --dry-run
+node src/cli.js fetch some.bistro --limit 12 --media all
+node src/cli.js status
+node src/cli.js export            # data/export/posts.jsonl
+npm test
 ```
 
-Inputs accepted: `nasa`, `@nasa`, `instagram.com/nasa`, and post links in `/p/`, `/reel/`,
-`/reels/`, `/tv/` or `instagr.am` form. Use `--file handles.txt` for a list.
+In GitHub Actions the same code runs as `src/worker.js`, driven by request files from the Pages app
+(see the repository README).
 
-## How it works
+## Layout
 
-```
-handles / URLs ──► canonicalise ──► providers in fallback order ──► merge (field provenance)
-                                     1. Apify (hosted, paid per result)        │
-                                     2. Instaloader (free, logged-out)         ▼
-                                                         optional comment deepening (Apify)
-                                                                               │
-                                                     media lane: photos, video covers, videos
-                                                                               │
-                                              SQLite (data/ig.db) ──► export JSONL handoff
-```
-
-* **Providers.** `--providers auto` uses Apify first when a token is set, then Instaloader.
-  Blocked or transient failures fall through to the next provider. A permanent failure
-  (private, deleted, not found) stops there, so no money is spent on dead targets.
-* **Apify actors.** `apify/instagram-scraper` (one run for all handles, `resultsType=posts`) and,
-  only with `--comments N`, `apify/instagram-comment-scraper`.
-* **Merge rules.** Null never overwrites data; manual input is never overwritten; otherwise the
-  fresher value wins. Each field records which provider filled it (`provenance`).
-* **Media.** `--media covers` (default) stores every photo and each video's cover image;
-  `--media all` adds the videos; `--media none` skips it. File types are checked from magic
-  bytes. Keys look like `media/{shortcode}/{idx}.jpg`, ready to map onto an R2 bucket.
-* **Status.** A post is `COMPLETE` once it has type, author, date and the media the policy asks
-  for. Caption, comments and location can legitimately be missing and are listed in `missing`.
-* **Raw payloads.** Every provider response is kept in `raw_payloads`, so we can re-normalize
-  later without paying to fetch again.
-
-## Cost and budget guards
-
-| | Free-plan price (Nov 2026) |
+| File | Role |
 |---|---|
-| Post via `apify/instagram-scraper` | $0.0027 |
-| Comment via `apify/instagram-comment-scraper` | $0.0026 |
+| `src/canonical.js` | Handles and links to canonical targets (`/reel/` and `/p/` share one shortcode) |
+| `src/apify.js` | `apify/instagram-scraper` (posts, profile details) and `apify/instagram-comment-scraper`; error classes; spend cap per run |
+| `src/pipeline.js` | Fallback across providers, comment deepening, budget, grading |
+| `src/merge.js` | Field-level merge with provenance; COMPLETE / PARTIAL grading |
+| `src/media.js` | Saves media, checks real file type from magic bytes, 100 MB limit |
+| `src/store.js` | JSON-file store: `posts/`, `raw/`, `status/`, `ledger.jsonl`, `media/` |
+| `src/export.js` | Handoff records as JSON lines |
+| `src/worker.js` | Processes Pages app requests in Actions and builds the public data folder |
 
-Apify's free plan includes $5 of credit a month: about 1,850 posts. Twelve posts from each
-of 10 friends costs about $0.32.
+## Rules kept from the design doc
 
-* Every Apify run is started with `maxTotalChargeUsd`, so Apify itself stops it at the cap.
-* Per run: `--budget` (default `$1`, env `IG_RUN_BUDGET_USD`).
-* Per month: `IG_MONTHLY_CAP_USD` (default `$5`). Spend is tracked in the `attempts` table and
-  shown by `ig-ingest status`.
-* `--dry-run` prints the worst-case estimate and stops.
+* A field we couldn't get is `null`, never omitted.
+* At most 50 comments, most-liked first; commenter usernames are dropped, including from raw payloads.
+* Media is passed by storage key (`media/{shortcode}/{idx}.jpg|mp4`), never by Instagram CDN link.
+* Null never overwrites data; manual input is never overwritten; each field records its source.
 
-Comments: the posts actor already returns a handful of recent comments per post at no extra
-cost. `--comments 20` tops that up to 20 per post, about $0.05 a post, so use it sparingly.
+## Cost (Apify free plan, Nov 2026)
 
-## Output record
+About $0.0027 per post, with roughly 10 recent comments included. Extra comments cost about
+$0.0026 each. Spend is capped per run (`--budget`, default $1) and per month (`IG_MONTHLY_CAP_USD`,
+default $5, Apify's free credit), and every Apify run is started with `maxTotalChargeUsd`.
 
-One JSON line per post and source, following the design doc's handoff contract:
+## Known limits
 
-```json
-{
-  "schema_version": "1.0",
-  "event_id": "uuid (stable for the same post and source)",
-  "user_id": null,
-  "save": {"source": "profile_feed", "handle": "some.bistro", "collection": null, "saved_at": "..."},
-  "post": {
-    "shortcode": "...", "url": "https://www.instagram.com/p/.../", "type": "image | carousel | video",
-    "author": {"username": "...", "full_name": "...", "is_business": null},
-    "posted_at": "2026-09-30T12:00:00Z", "caption": "...", "hashtags": ["#..."], "mentions": ["@..."],
-    "location": {"name": "...", "ig_location_id": "...", "lat": null, "lng": null},
-    "comments": [{"text": "...", "like_count": 41, "created_at": "..."}],
-    "media": [{"idx": 0, "kind": "image", "storage_key": "media/.../0.jpg", "mime": "image/jpeg", "...": "..."}],
-    "stats": {"like_count": 1520, "comment_count": 3, "view_count": null},
-    "is_pinned": false, "product_type": "clips"
-  },
-  "provenance": {"caption": "tier2_apify", "comments": "tier2_apify", "fetched_at": "..."},
-  "status": "COMPLETE",
-  "missing": []
-}
-```
-
-Contract rules kept: missing fields are `null`, never omitted; at most 50 comments, sorted by
-likes, with commenter usernames dropped; media passed by storage key, never by CDN URL.
-`status`, `missing`, `stats`, `is_pinned` and `product_type` are additive fields.
-
-## Known limits (found while building, 15 Nov 2026)
-
-* **Instagram blocks the free tier from cloud servers fast.** From a cloud worker, Instaloader
-  logged-out read one profile, then got HTTP 429 and a login wall within about three requests.
-  Comments always need a login. From a home connection it lasts longer; expect Apify to carry
-  cloud runs.
-* **Media from the Claude cloud sandbox.** Instagram's CDN hosts (`scontent-*.cdninstagram.com`)
-  change per request and are not on the sandbox allowlist, so downloads fail there and posts stay
-  `PARTIAL (missing: media)`. Run anywhere with normal internet, or use `--media none`.
+* Instagram blocks logged-out scraping from cloud servers quickly, so the free open-source route
+  (Instaloader, Python) was dropped; Apify is the scraper.
 * `author.is_business` and location coordinates are not in Apify's post output; they stay `null`.
-
-## Tests
-
-```bash
-pytest -q
-```
-
-Tests run offline against sample Apify payloads and a fake Apify API and CDN. They cover
-URL parsing, normalization, run budgets, error classes and fallback, merge rules, media
-handling and the export contract.
+* Node's built-in `fetch` ignores `HTTPS_PROXY`. Behind a proxy, run with `NODE_USE_ENV_PROXY=1` (Node 22.21+).
