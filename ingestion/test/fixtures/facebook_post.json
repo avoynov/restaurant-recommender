@@ -1,0 +1,149 @@
+[
+ {
+  "facebookUrl": "https://www.facebook.com/NASA/posts/pfbid02hb8fsH3Y8btu1WnYzzNNv3QebDqLQxQFFzPL9ovyRHnZisanz9UAfn4bVVr4DiyKl",
+  "postId": "1693389518823084",
+  "pageName": "NASA",
+  "url": "https://www.facebook.com/NASA/posts/pfbid02hb8fsH3Y8btu1WnYzzNNv3QebDqLQxQFFzPL9ovyRHnZisanz9UAfn4bVVr4DiyKl",
+  "time": "2026-11-20T17:59:42.000Z",
+  "timestamp": 1795197582,
+  "user": {
+   "id": "100044561550831",
+   "name": "NASA - National Aeronautics and Space Administration"
+  },
+  "text": "",
+  "link": "http://go.nasa.gov/dragonfly-names",
+  "likes": 89,
+  "comments": 6,
+  "shares": 15,
+  "topReactionsCount": 3,
+  "liveViewerCount": 0,
+  "sharedPost": {
+   "pageName": {
+    "id": "100064588638223",
+    "name": "NASA Solar System Exploration"
+   },
+   "url": "https://www.facebook.com/reel/1497381435689987/",
+   "time": "2026-11-20T17:25:24.000Z",
+   "timestamp": 1795195524,
+   "user": {
+    "id": "100064588638223",
+    "name": "NASA Solar System Exploration"
+   },
+   "text": "Send your name to Saturn’s moon Titan with NASA. 🚀\n\nGrab your personalized boarding pass at go.nasa.gov/dragonfly-names and join NASA’s Dragonfly mission, the first science mission to fly and explore the surface of another world.\n\nLaunching in 2028, Dragonfly will fly from place to place across Titan, a world of rivers, lakes, mountains, and dunes that’s rich in organic material, the chemical building blocks of life. \n\n✨By signing up, you’ll have your name on a chip aboard this mission exploring one of the most intriguing worlds in our solar system. \n\n Share this with someone you’d want to make the journey with!",
+   "link": "http://go.nasa.gov/dragonfly-names",
+   "isVideo": true,
+   "liveViewerCount": 0,
+   "media": [
+    {
+     "thumbnail": "https://scontent-hou1-1.xx.fbcdn.net/v/t51.82787-10/902586470_4772628773019278_3439471722125299478_n.jpg?stp=dst-jpg_tt6&cstp=mx1216x2160&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=TdFNOd1_kgMQ7kNvwGdphY_&_nc_oc=Adq_QEu03L1hnlZB8jxDTNbidFG6X6ysYazXcOeOE-BzzHPiBHUg4HlGRowClc_ydQgk8A5FmtvN-K-hRYBj-CKU&_nc_zt=23&_nc_ht=scontent-hou1-1.xx&_nc_gid=ylTIJFpl83kBsnrVmBHB-Q&_nc_ss=70289&oh=00_AQSI1C6uRJutQ6PBoKu64wu_2hy_3LrAhLUJ38ek6cjODA&oe=6B069480",
+     "__typename": "Video",
+     "thumbnailImage": {
+      "uri": "https://scontent-hou1-1.xx.fbcdn.net/v/t51.82787-10/902586470_4772628773019278_3439471722125299478_n.jpg?stp=dst-jpg_tt6&cstp=mx1216x2160&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=TdFNOd1_kgMQ7kNvwGdphY_&_nc_oc=Adq_QEu03L1hnlZB8jxDTNbidFG6X6ysYazXcOeOE-BzzHPiBHUg4HlGRowClc_ydQgk8A5FmtvN-K-hRYBj-CKU&_nc_zt=23&_nc_ht=scontent-hou1-1.xx&_nc_gid=ylTIJFpl83kBsnrVmBHB-Q&_nc_ss=70289&oh=00_AQSI1C6uRJutQ6PBoKu64wu_2hy_3LrAhLUJ38ek6cjODA&oe=6B069480"
+     },
+     "id": "1497381435689987",
+     "is_clipping_enabled": false,
+     "live_rewind_enabled": false,
+     "playable_duration_in_ms": 50016,
+     "is_huddle": false,
+     "url": "https://www.facebook.com/reel/1497381435689987/",
+     "captions_url": null,
+     "video_available_captions_locales": [],
+     "recipient_group": null,
+     "breakingStatus": false,
+     "videoId": "1497381435689987",
+     "isPremiere": false,
+     "liveViewerCount": 0,
+     "rehearsalInfo": null,
+     "is_gaming_video": false,
+     "publish_time": 1795195524,
+     "animated_image_caption": null,
+     "width": 720,
+     "height": 1280,
+     "broadcaster_origin": null,
+     "broadcast_id": null,
+     "broadcast_status": null,
+     "is_live_streaming": false,
+     "is_live_trace_enabled": false,
+     "is_looping": false,
+     "is_video_broadcast": false,
+     "is_podcast_video": false,
+     "loop_count": 0,
+     "is_spherical": false,
+     "is_spherical_enabled": true,
+     "unsupported_browser_message": null,
+     "pmv_metadata": null,
+     "latency_sensitive_config": null,
+     "live_playback_instrumentation_configs": null,
+     "is_ncsr": false,
+     "permalink_url": "https://www.facebook.com/reel/1497381435689987/",
+     "seo_web_crawler_lookaside_url": null,
+     "video_status_type": "OK",
+     "can_use_oz": true,
+     "min_quality_preference": null,
+     "spherical_video_fallback_urls": null,
+     "comet_video_player_nextgendash_availability": "AVAILABLE",
+     "videoDeliveryLegacyFields": {
+      "dash_manifest_url": "https://www.facebook.com/dash_mpd_debug.mpd?v=1497381435689987&dummy=.mpd",
+      "browser_native_sd_url": "https://video-hou1-1.xx.fbcdn.net/o1/v/t2/f2/m367/AQPRUy2Yn3JAX_jf8hg-KuiFGSQRvRTROWxbh3NNuUEkY885OeAF2fwdGBzmdUnO1_MS1PFIOtSsgNoyz0aJ4qjBy6WL9rR2_usAJMRKmw.mp4?_nc_cat=111&_nc_sid=8bf8fe&_nc_ht=video-hou1-1.xx.fbcdn.net&_nc_ohc=oEUG0aAGY4IQ7kNvwEEwScZ&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMzYwLnByb2dyZXNzaXZlX2gyNjQtYmFzaWMtZ2VuMl8zNjBwIiwieHB2X2Fzc2V0X2lkIjo0NzcyNjI0NjA5Njg2MzYxLCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAwOTksImR1cmF0aW9uX3MiOjUwLCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&_nc_gid=ylTIJFpl83kBsnrVmBHB-Q&_nc_ss=70289&_nc_map=urlgen_bucketless&_nc_zt=28&_nc_enc=Uo0RHl2q8OsoiT5KivRapG4YTEXZo2BusyZ2-74y5iXqETguIi_mtuTCYoC1fDiaXV0R2U9Xy1Xxs2Lg9NGqo6gz7CkIGgH3Bh8BcU6a_TTm7193_EJnebtyIdU&oh=00_AQTr6X1bvu-8AbswlYIdcSKkqZJsbvJOpmD55OKdIUokEA&oe=6B06874F&bitrate=244123&tag=progressive_h264-basic-gen2_360p",
+      "browser_native_hd_url": "https://video-hou1-1.xx.fbcdn.net/o1/v/t2/f2/m367/AQP6hCPCPNreWpRtmUPGh79WMF-l57-cMju8Uc6vaRTW6iojo0-yE7ZntwJk7Zzsacgxw9kn3jewHd62Du-kgGopHoGbL3eUGD9tKQ3itg.mp4?_nc_cat=105&_nc_sid=8bf8fe&_nc_ht=video-hou1-1.xx.fbcdn.net&_nc_ohc=eS6I-Qt-F5IQ7kNvwGGuhyo&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuNzIwLnByb2dyZXNzaXZlX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjo0NzcyNjI0NjA5Njg2MzYxLCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAwOTksImR1cmF0aW9uX3MiOjUwLCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&_nc_gid=ylTIJFpl83kBsnrVmBHB-Q&_nc_ss=70289&_nc_map=urlgen_bucketless&_nc_zt=28&oh=00_AQQP4xvqHm_9z6XSJ0LBPY_7gH6vT9vXFlnLjps89mkncg&oe=6B069C09&bitrate=834002&tag=progressive_h264-basic-gen2_720p",
+      "id": "1497381435689987"
+     },
+     "videoDeliveryResponseFragment": null,
+     "is_latency_menu_enabled": false,
+     "fbls_tier": null,
+     "is_latency_sensitive_broadcast": false,
+     "video_player_shaka_performance_logger_init": null,
+     "video_player_shaka_performance_logger_should_sample": false,
+     "video_player_shaka_performance_logger_init2": null,
+     "autoplay_gating_result": "all_page_organic_allowed",
+     "viewer_autoplay_setting": "default_autoplay",
+     "can_autoplay": true,
+     "p2p_settings": null,
+     "audio_settings": null,
+     "captions_settings": null,
+     "broadcast_low_latency_config": null,
+     "audio_availability": "AVAILABLE",
+     "muted_segments": [],
+     "spherical_video_renderer": null,
+     "preferred_thumbnail": {
+      "image": {
+       "uri": "https://scontent-hou1-1.xx.fbcdn.net/v/t51.82787-10/902586470_4772628773019278_3439471722125299478_n.jpg?stp=dst-jpg_tt6&cstp=mx1216x2160&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=50ce42&_nc_ohc=TdFNOd1_kgMQ7kNvwGdphY_&_nc_oc=Adq_QEu03L1hnlZB8jxDTNbidFG6X6ysYazXcOeOE-BzzHPiBHUg4HlGRowClc_ydQgk8A5FmtvN-K-hRYBj-CKU&_nc_zt=23&_nc_ht=scontent-hou1-1.xx&_nc_gid=ylTIJFpl83kBsnrVmBHB-Q&_nc_ss=70289&oh=00_AQSI1C6uRJutQ6PBoKu64wu_2hy_3LrAhLUJ38ek6cjODA&oe=6B069480"
+      },
+      "image_preview_payload": null,
+      "id": "1177581881292414"
+     },
+     "video_imf_data": null,
+     "playback_language_on_comet": null,
+     "aspect_ratio": 0.5625,
+     "original_width": 720,
+     "original_height": 1280,
+     "original_rotation": "NO_ROTATE",
+     "accent_color": "FF90949C",
+     "video_container_type": "CONTAINED_POST_ATTACHMENT",
+     "is_soundbites_video": false,
+     "comet_video_player_audio_overlay_renderer": null,
+     "should_show_photosensitive_content_warning": false,
+     "clip_fallback_cover": null,
+     "is_clip": false,
+     "matcha_related_keywords_links": [
+      ""
+     ],
+     "is_music_clip": false,
+     "can_open_tahoe_for_lva": false,
+     "video_collaborator_page_or_delegate_page": null,
+     "video_anchor_tag_info": null,
+     "image": {
+      "uri": "https://scontent-hou1-1.xx.fbcdn.net/v/t51.82787-10/902586470_4772628773019278_3439471722125299478_n.jpg?stp=dst-jpg_tt6&cstp=mx1216x2160&ctp=p296x100&_nc_cat=1&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=TdFNOd1_kgMQ7kNvwGdphY_&_nc_oc=Adq_QEu03L1hnlZB8jxDTNbidFG6X6ysYazXcOeOE-BzzHPiBHUg4HlGRowClc_ydQgk8A5FmtvN-K-hRYBj-CKU&_nc_zt=23&_nc_ht=scontent-hou1-1.xx&_nc_gid=ylTIJFpl83kBsnrVmBHB-Q&_nc_ss=70289&oh=00_AQSI1C6uRJutQ6PBoKu64wu_2hy_3LrAhLUJ38ek6cjODA&oe=6B069480"
+     },
+     "canonical_uri_with_fallback": "https://www.facebook.com/NASASolarSystem/videos/send-your-name-to-saturns-moon-titan-with-nasa-grab-your-personalized-boarding-p/1497381435689987/"
+    }
+   ],
+   "paidPartnership": false
+  },
+  "reactionLikeCount": 70,
+  "reactionLoveCount": 17,
+  "reactionAngryCount": 2,
+  "paidPartnership": false,
+  "facebookId": "UzpfSTEwMDA0NDU2MTU1MDgzMToxNjkzMzg5NTE4ODIzMDg0OjE2OTMzODk1MTg4MjMwODQ="
+ }
+]

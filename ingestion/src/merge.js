@@ -6,8 +6,11 @@
 
 import { now } from "./util.js";
 
-export const MERGE_FIELDS = ["type", "author", "posted_at", "caption", "hashtags", "mentions", "location", "comments", "media", "stats"];
-const EXTRA = ["is_pinned", "product_type", "url"];
+export const MERGE_FIELDS = ["type", "author", "posted_at", "caption", "hashtags", "mentions", "location", "place", "comments", "media", "stats"];
+const EXTRA = ["platform", "platform_id", "is_pinned", "product_type", "url", "link", "region"];
+// Places have no author or post date; text-only posts and places may have no media.
+const NO_AUTHOR = new Set(["place"]);
+const MEDIA_OPTIONAL = new Set(["place", "text"]);
 
 export function merge(existing, fresh, provider) {
   let record, prov;
@@ -41,15 +44,16 @@ function carryStorage(old, fresh) {
 }
 
 /**
- * Grade a record. COMPLETE needs type, author, date and the media the policy asks for.
+ * Grade a record. COMPLETE needs type, author, date (not for places) and the media the policy asks for.
  * Caption, comments and location can legitimately be missing; they are listed but don't block.
  */
 export function assess(record, mediaPolicy) {
-  const missing = ["type", "author", "posted_at"].filter((f) => record[f] == null);
+  const missing = (NO_AUTHOR.has(record.type) ? ["type"] : ["type", "author", "posted_at"]).filter((f) => record[f] == null);
+  if (record.type === "place" && !record.place?.name) missing.push("place");
   if (record.caption == null) missing.push("caption");
   if (record.comments == null) missing.push("comments");
   const media = record.media;
-  let mediaOk = !(media == null || (!media.length && record.type));
+  let mediaOk = !(media == null || (!media.length && record.type && !MEDIA_OPTIONAL.has(record.type)));
   if (mediaOk && mediaPolicy !== "none") {
     for (const m of media) {
       if (m.kind === "image" && !m.storage_key) mediaOk = false;
@@ -58,6 +62,6 @@ export function assess(record, mediaPolicy) {
     }
   }
   if (!mediaOk) missing.push("media");
-  const blocking = ["type", "author", "posted_at", "media"];
+  const blocking = ["type", "author", "posted_at", "media", "place"];
   return { status: missing.some((f) => blocking.includes(f)) ? "PARTIAL" : "COMPLETE", missing };
 }

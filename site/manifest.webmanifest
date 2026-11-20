@@ -1,7 +1,7 @@
 {
   "name": "Taste Ingest",
   "short_name": "Taste",
-  "description": "Share Instagram food posts; we save them for your taste profile.",
+  "description": "Share food posts from Instagram, TikTok and Facebook, and places from Google Maps; we save them for your taste profile.",
   "id": "./",
   "start_url": "./?source=pwa",
   "scope": "./",

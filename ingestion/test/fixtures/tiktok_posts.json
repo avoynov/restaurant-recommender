@@ -1,0 +1,56 @@
+[
+ {
+  "id": "7709957996436131086",
+  "text": "Voyager 1 is a light-day from Earth. Let’s rewind a few billion miles! ✨\n\nFrom the NASA archives, see what it was like to get our first close-up views of Uranus and Neptune.\n\nNext year marks 50 years since the twin Voyagers launched. There’s more of their story to tell.",
+  "textLanguage": "en",
+  "createTime": 1795114496,
+  "createTimeISO": "2026-11-19T18:54:56.000Z",
+  "isAd": false,
+  "hasTikTokShopProduct": false,
+  "authorMeta": {
+   "id": "7664638705177150477",
+   "name": "nasa",
+   "nickName": "NASA",
+   "verified": true,
+   "commerceUserInfo": {
+    "commerceUser": false
+   }
+  },
+  "webVideoUrl": "https://www.tiktok.com/@nasa/video/7709957996436131086",
+  "videoMeta": {
+   "height": 1280,
+   "width": 720,
+   "duration": 177,
+   "coverUrl": "https://api.apify.com/v2/key-value-stores/QVujJ7vEu95V1aHua/records/cover-nasa-20261119185456-7709957996436131086.jpg",
+   "definition": "720p",
+   "format": "mp4",
+   "downloadAddr": "https://api.apify.com/v2/key-value-stores/QVujJ7vEu95V1aHua/records/video-nasa-20261119185456-7709957996436131086.mp4",
+   "transcriptionLink": null,
+   "aiVideoDescription": null,
+   "aiVideoSummary": null,
+   "originalCoverUrl": "https://p16-common-sign.tiktokcdn-us.com/tos-useast5-p-0068-tx/oQCLQRJNQSGIPvA5geq0egonrfAiZGxjfAIAAO~tplv-tiktokx-origin.image?dr=9636&x-expires=1795381200&x-signature=QwueN1IpmGGMC0kpsZhJLiEbGjg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast5"
+  },
+  "diggCount": 2421,
+  "shareCount": 79,
+  "playCount": 27400,
+  "collectCount": 242,
+  "commentCount": 98,
+  "repostCount": 0,
+  "mentions": [],
+  "detailedMentions": [],
+  "hashtags": [],
+  "effectStickers": [],
+  "isSlideshow": false,
+  "isPinned": false,
+  "isSponsored": false,
+  "shortDramaSeriesInfo": null,
+  "mediaUrls": [
+   "https://api.apify.com/v2/key-value-stores/QVujJ7vEu95V1aHua/records/video-nasa-20261119185456-7709957996436131086.mp4"
+  ],
+  "input": "nasa",
+  "fromProfileSection": "videos",
+  "isStory": false,
+  "commentsDatasetUrl": "https://api.apify.com/v2/datasets/ttcomments/items?signature=x",
+  "submittedVideoUrl": "https://www.tiktok.com/@/video/7709957996436131086"
+ }
+]

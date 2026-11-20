@@ -38,7 +38,8 @@ test("end to end: profile, media saved, export follows the contract", async () =
   assert.equal(writeJsonl(store, out), 3);
   const lines = readFileSync(out, "utf8").trim().split("\n").map(JSON.parse);
   const r = lines.find((x) => x.post.shortcode === "DAbCdEfGhIj");
-  assert.equal(r.schema_version, "1.0");
+  assert.equal(r.schema_version, "1.1");
+  assert.equal(r.post.platform, "instagram");
   assert.equal(r.save.source, "profile_feed");
   assert.equal(r.save.handle, "some.bistro");
   const dumped = JSON.stringify(r);
