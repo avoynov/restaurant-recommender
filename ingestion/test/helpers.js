@@ -13,8 +13,9 @@ const json = (status, body) => new Response(JSON.stringify(body), { status, head
 
 /** In-memory Apify API: records runs, serves a dataset per actor (and per resultsType=details). */
 export class FakeApify {
-  constructor(datasets = {}, { status = "SUCCEEDED", failStart = null } = {}) {
+  constructor(datasets = {}, { status = "SUCCEEDED", failStart = null, minCharge = {} } = {}) {
     this.datasets = datasets;
+    this.minCharge = minCharge;
     this.status = status;
     this.failStart = failStart;
     this.runs = [];
@@ -28,6 +29,12 @@ export class FakeApify {
       if (this.failStart) return json(this.failStart, { error: { type: "x", message: "nope" } });
       const actor = path.split("/acts/")[1].split("/")[0];
       const input = JSON.parse(init.body);
+      const min = this.minCharge[actor] ?? 0;
+      if (Number(u.searchParams.get("maxTotalChargeUsd")) < min) {
+        this.rejectedStarts = (this.rejectedStarts || 0) + 1;
+        const message = "Maximum cost per run is less than the allowed minimum of $" + min.toFixed(2);
+        return json(400, { error: { type: "max-total-charge-usd-below-minimum", message } });
+      }
       const key = actor + (input.resultsType === "details" ? "~details" : "");
       const id = `run${this.runs.length}`;
       this.runs.push({ actor, key, input, params: Object.fromEntries(u.searchParams) });
@@ -63,3 +70,20 @@ export async function cdnFetch(url) {
   return new Response(path.endsWith(".mp4") ? MP4 : JPEG, { status: 200 });
 }
 export const mediaStore = (root) => new MediaStore(root, { fetchFn: cdnFetch });
+
+/** Fake Apify loaded with recorded TikTok, Facebook and Google Maps payloads. */
+export function fakePlatforms(opts = {}) {
+  return new FakeApify({
+    ...fakeApify().datasets,
+    "clockworks~tiktok-scraper": load("tiktok_posts.json"),
+    ttcomments: [
+      { text: "Top comment", diggCount: 40, createTimeISO: "2026-11-19T20:00:00.000Z", uniqueId: "someone", cid: "1" },
+      { text: "A reply", diggCount: 99, repliesToId: "1", uniqueId: "other" },
+      { text: "Second", diggCount: 3, createTimeISO: "2026-11-19T21:00:00.000Z", uniqueId: "x" },
+    ],
+    "apify~facebook-posts-scraper": [...load("facebook_post.json"), ...load("facebook_reel.json")],
+    "apify~facebook-comments-scraper": [{ text: "Looks great", likesCount: "5", date: "2026-11-20T18:00:00.000Z", profileName: "Someone", facebookUrl: "https://www.facebook.com/reel/1497381435689987/" }],
+    "maximedupre~google-maps-shared-list-scraper": load("gmaps_list.json"),
+    "compass~crawler-google-places": load("gmaps_compass.json"),
+  }, opts);
+}

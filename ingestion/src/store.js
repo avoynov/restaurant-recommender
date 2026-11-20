@@ -10,8 +10,11 @@ import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renam
 import { join } from "node:path";
 import { now } from "./util.js";
 
-const COMMENT_LISTS = ["latestComments", "comments", "preview_comments"];
-const COMMENTER_KEYS = new Set(["ownerUsername", "owner", "ownerProfilePicUrl", "ownerId", "user", "replies"]);
+const COMMENT_LISTS = ["latestComments", "comments", "preview_comments", "topComments", "reviews"];
+const COMMENTER_KEYS = new Set(["ownerUsername", "owner", "ownerProfilePicUrl", "ownerId", "user", "replies",
+  // Facebook comments, TikTok comments, Google Maps reviews
+  "author", "profileName", "profileUrl", "profilePicture", "profileId", "name", "uniqueId", "uid", "avatarThumbnail",
+  "reviewerName", "reviewerId", "reviewerUrl", "reviewerProfileUrl", "reviewerPhotoUrl", "reviewerNumberOfReviews", "isLocalGuide"]);
 
 /** Drop who wrote each comment from raw payloads too (design: commenter handles are never stored). */
 export function scrubCommenters(payload) {

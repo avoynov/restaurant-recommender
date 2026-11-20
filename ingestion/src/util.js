@@ -1,6 +1,6 @@
 // Small shared helpers: errors, time, numbers, comments.
 
-export const SCHEMA_VERSION = "1.0";
+export const SCHEMA_VERSION = "1.1";
 export const MAX_COMMENTS = 50;
 
 /**

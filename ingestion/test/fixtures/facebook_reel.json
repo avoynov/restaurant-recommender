@@ -1,0 +1,193 @@
+[
+ {
+  "facebookUrl": "https://www.facebook.com/reel/1497381435689987/",
+  "likers": {
+   "count": 79
+  },
+  "unified_reactors": {
+   "count": 79
+  },
+  "total_comment_count": 5,
+  "id": "UzpfSTEwMDA2NDU4ODYzODIyMzpWSzoxNDk3MzgxNDM1Njg5OTg3",
+  "cross_universe_feedback_info": {
+   "ig_comment_count": null
+  },
+  "share_count_reduced": "37",
+  "short_form_video_context": {
+   "self_view_boost": null,
+   "video": {
+    "id": "1497381435689987",
+    "first_frame_thumbnail": "https://scontent-bos5-1.xx.fbcdn.net/v/t51.71878-10/902586928_1671907587802856_692041159807529908_n.jpg?stp=dst-jpg_tt6&cstp=mx640x1136&ctp=s640x1136&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=PB6C_deFrkQQ7kNvwGsbcst&_nc_oc=AdqCh7fxezHSl7fSsmlvFx8d_rQX6N5DpQyC0FlqW1ByX2kjyT4vZ0dtvRSY7SThPs06MdFZFIFATq3ZhVEKaCxF&_nc_zt=23&_nc_ht=scontent-bos5-1.xx&_nc_gid=-M10NBFrzPZaaOsM1rOKyg&_nc_ss=73289&oh=00_AQQ8uPgLib1VFyOhZjPGh_Qmcsa_RiFVsV6FspTbt-BnwQ&oe=6B06A1CD",
+    "__typename": "Video",
+    "playable_duration_in_ms": 50016,
+    "embeddable": true,
+    "audio_availability": "AVAILABLE",
+    "seo_llm_content": {
+     "title": "Send Your Name to Titan with NASA Dragonfly Mission Launching 2028",
+     "summary": "This post by NASA announces the \"Dragonfly\" mission, the first scientific space exploration of its kind, scheduled for launch in 2028. The mission will fly from the planet Titan to explore the surface of another world, which is rich in organic materials. To participate, viewers are invited to sign up and receive a personalized boarding pass, which they can send to the mission's moon, Titan."
+    }
+   },
+   "if_should_change_url_for_reels": null,
+   "shareable_url": "https://www.facebook.com/reel/1497381435689987",
+   "playback_video": {
+    "aspect_ratio": 0.5625,
+    "height": 1280,
+    "width": 720,
+    "length_in_second": 50.016,
+    "id": "1497381435689987",
+    "dubbed_track_mapping": [],
+    "thumbnailImage": {
+     "uri": "https://scontent-bos5-1.xx.fbcdn.net/v/t51.82787-10/902586470_4772628773019278_3439471722125299478_n.jpg?stp=dst-jpg_tt6&cstp=mx1216x2160&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=TdFNOd1_kgMQ7kNvwEtYZHU&_nc_oc=AdrvSv3rmnfeB24nFlPNyz2dv331ynOZnE2lAgfRcet_KLFpsb3-IMTVV7BJ19wZyfiJA5At0Q1x9_9j9EsqkXTy&_nc_zt=23&_nc_ht=scontent-bos5-1.xx&_nc_gid=-M10NBFrzPZaaOsM1rOKyg&_nc_ss=73289&oh=00_AQROf5mhJwzvF5rQnMOYk9732HsGDgvApLyD-2w0ULC5zA&oe=6B069480"
+    },
+    "animated_image_caption": null,
+    "broadcaster_origin": null,
+    "broadcast_id": null,
+    "broadcast_status": null,
+    "is_live_streaming": false,
+    "is_live_trace_enabled": false,
+    "is_looping": false,
+    "is_video_broadcast": false,
+    "is_podcast_video": false,
+    "loop_count": 0,
+    "is_spherical": false,
+    "is_spherical_enabled": true,
+    "unsupported_browser_message": null,
+    "pmv_metadata": null,
+    "latency_sensitive_config": null,
+    "live_playback_instrumentation_configs": null,
+    "is_ncsr": false,
+    "permalink_url": "https://www.facebook.com/reel/1497381435689987/",
+    "captions_url": null,
+    "seo_web_crawler_lookaside_url": null,
+    "video_available_captions_locales": [],
+    "video_status_type": "OK",
+    "can_use_oz": true,
+    "min_quality_preference": null,
+    "spherical_video_fallback_urls": null,
+    "comet_video_player_nextgendash_availability": "AVAILABLE",
+    "videoDeliveryLegacyFields": {
+     "dash_manifest_url": "https://www.facebook.com/dash_mpd_debug.mpd?v=1497381435689987&dummy=.mpd",
+     "browser_native_sd_url": "https://video-bos5-1.xx.fbcdn.net/o1/v/t2/f2/m367/AQPRUy2Yn3JAX_jf8hg-KuiFGSQRvRTROWxbh3NNuUEkY885OeAF2fwdGBzmdUnO1_MS1PFIOtSsgNoyz0aJ4qjBy6WL9rR2_usAJMRKmw.mp4?_nc_cat=111&_nc_sid=8bf8fe&_nc_ht=video-bos5-1.xx.fbcdn.net&_nc_ohc=oEUG0aAGY4IQ7kNvwFZSH1u&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuMzYwLnByb2dyZXNzaXZlX2gyNjQtYmFzaWMtZ2VuMl8zNjBwIiwieHB2X2Fzc2V0X2lkIjo0NzcyNjI0NjA5Njg2MzYxLCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAwOTksImR1cmF0aW9uX3MiOjUwLCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&_nc_gid=-M10NBFrzPZaaOsM1rOKyg&_nc_ss=73289&_nc_map=urlgen_bucketless&_nc_zt=28&_nc_enc=Uj8TN0oysaCMzCnLmf7fmNfD9W4eJU-zhCvJNFQGWsOr4hyq7zOf4shD0bdZuc3rJNWCVesN0J5qfvKxTfsq8stYuXrrdPW2nUG-W3j5hYzj2b7jgw82BsiHq28&oh=00_AQQt-15hWRIfDrX8FNUski09GPAOF5ba44evyWRR-RY9ug&oe=6B06874F&bitrate=244123&tag=progressive_h264-basic-gen2_360p",
+     "browser_native_hd_url": "https://video-bos5-1.xx.fbcdn.net/o1/v/t2/f2/m367/AQP6hCPCPNreWpRtmUPGh79WMF-l57-cMju8Uc6vaRTW6iojo0-yE7ZntwJk7Zzsacgxw9kn3jewHd62Du-kgGopHoGbL3eUGD9tKQ3itg.mp4?_nc_cat=105&_nc_sid=8bf8fe&_nc_ht=video-bos5-1.xx.fbcdn.net&_nc_ohc=eS6I-Qt-F5IQ7kNvwG0ag5c&efg=eyJ2ZW5jb2RlX3RhZyI6Inhwdl9wcm9ncmVzc2l2ZS5GQUNFQk9PSy4uQzMuNzIwLnByb2dyZXNzaXZlX2gyNjQtYmFzaWMtZ2VuMl83MjBwIiwieHB2X2Fzc2V0X2lkIjo0NzcyNjI0NjA5Njg2MzYxLCJhc3NldF9hZ2VfZGF5cyI6MCwidmlfdXNlY2FzZV9pZCI6MTAwOTksImR1cmF0aW9uX3MiOjUwLCJ1cmxnZW5fc291cmNlIjoid3d3In0%3D&ccb=17-1&_nc_gid=-M10NBFrzPZaaOsM1rOKyg&_nc_ss=73289&_nc_map=urlgen_bucketless&_nc_zt=28&oh=00_AQTAQ_yVNR9xFPHOV_nrWM1sUx7z30RcqdgiqY8l48RDow&oe=6B069C09&bitrate=834002&tag=progressive_h264-basic-gen2_720p",
+     "id": "1497381435689987"
+    },
+    "videoDeliveryResponseFragment": null,
+    "is_gaming_video": false,
+    "is_latency_menu_enabled": false,
+    "fbls_tier": null,
+    "is_latency_sensitive_broadcast": false,
+    "video_player_shaka_performance_logger_init": null,
+    "video_player_shaka_performance_logger_should_sample": false,
+    "video_player_shaka_performance_logger_init2": null,
+    "autoplay_gating_result": "gatekeeper",
+    "viewer_autoplay_setting": "default_autoplay",
+    "can_autoplay": false,
+    "p2p_settings": null,
+    "audio_settings": null,
+    "captions_settings": null,
+    "broadcast_low_latency_config": null,
+    "audio_availability": "AVAILABLE",
+    "muted_segments": [],
+    "spherical_video_renderer": null,
+    "preferred_thumbnail": {
+     "image": {
+      "uri": "https://scontent-bos5-1.xx.fbcdn.net/v/t51.82787-10/902586470_4772628773019278_3439471722125299478_n.jpg?stp=dst-jpg_tt6&cstp=mx1216x2160&ctp=s960x960&_nc_cat=1&ccb=1-7&_nc_sid=50ce42&_nc_ohc=TdFNOd1_kgMQ7kNvwEtYZHU&_nc_oc=AdrvSv3rmnfeB24nFlPNyz2dv331ynOZnE2lAgfRcet_KLFpsb3-IMTVV7BJ19wZyfiJA5At0Q1x9_9j9EsqkXTy&_nc_zt=23&_nc_ht=scontent-bos5-1.xx&_nc_gid=-M10NBFrzPZaaOsM1rOKyg&_nc_ss=73289&oh=00_AQROf5mhJwzvF5rQnMOYk9732HsGDgvApLyD-2w0ULC5zA&oe=6B069480"
+     },
+     "image_preview_payload": null,
+     "id": "1177581881292414"
+    },
+    "video_imf_data": null,
+    "playback_language_on_comet": null,
+    "warning_screen_renderer": null,
+    "cix_screen": null
+   },
+   "video_owner": {
+    "__typename": "User",
+    "id": "100064588638223",
+    "__isActor": "User",
+    "name": "NASA Solar System Exploration",
+    "enable_reels_tab_deeplink": true,
+    "is_verified": true,
+    "url": "https://www.facebook.com/NASASolarSystem",
+    "should_show_reels_follow_back_cta": false,
+    "subscribe_status": "CANNOT_SUBSCRIBE",
+    "delegate_page": {
+     "id": "79209882917",
+     "uri_token": "NASASolarSystem",
+     "woodhenge_creator_info": null
+    }
+   },
+   "fb_shorts_reshare_context": {
+    "is_reshare": false,
+    "reshare_creator": {
+     "__typename": "User",
+     "__isActor": "User",
+     "id": "100064588638223",
+     "name": "NASA Solar System Exploration",
+     "enable_reels_tab_deeplink": true,
+     "is_verified": true,
+     "url": "https://www.facebook.com/NASASolarSystem"
+    }
+   },
+   "remix_info": {
+    "is_remixable": true,
+    "status": "ENABLED"
+   },
+   "video_owner_type": "FACEBOOK_USER",
+   "soundtrack_info": {
+    "id": "29092141227111139",
+    "type": "CUSTOM_AUDIO"
+   },
+   "track_title": "NASA Solar System Exploration · Original audio",
+   "is_original_audio_on_facebook": true
+  },
+  "post_id": "1633078842188388",
+  "creation_time": 1795195524,
+  "unpublished_content_type": "PUBLISHED",
+  "media_attribution_elements": [],
+  "attachments": [
+   {
+    "media": {
+     "__typename": "Video",
+     "is_made_with_meta_ai_app": false,
+     "__isNode": "Video",
+     "id": "1497381435689987",
+     "video_delivery_response": {
+      "transcript_urls": [],
+      "id": "1497381435689987"
+     }
+    },
+    "call_to_action_renderer": null
+   }
+  ],
+  "save_info": {
+   "viewer_save_state": "NOT_SAVED"
+  },
+  "video": {
+   "id": "1497381435689987"
+  },
+  "message": {
+   "text": "Send your name to Saturn’s moon Titan with NASA. 🚀\n\nGrab your personalized boarding pass at go.nasa.gov/dragonfly-names and join NASA’s Dragonfly mission, the first science mission to fly and explore the surface of another world.\n\nLaunching in 2028, Dragonfly will fly from place to place across Titan, a world of rivers, lakes, mountains, and dunes that’s rich in organic material, the chemical building blocks of life. \n\n✨By signing up, you’ll have your name on a chip aboard this mission exploring one of the most intriguing worlds in our solar system. \n\n Share this with someone you’d want to make the journey with!",
+   "ranges": [
+    {
+     "offset": 92,
+     "length": 27,
+     "entity": {
+      "__typename": "ExternalUrl",
+      "__isEntity": "ExternalUrl",
+      "mobileUrl": "https://lm.facebook.com/l.php?u=https%3A%2F%2Fgo.nasa.gov%2Fdragonfly-names&h=AUAy8ycVPpEtM4yHSCKcrkyxmtPYgbQne8pj6Uip13f8f9J_R6OOvtHIRf6f_Zy5cLa1C0mgTDnCJP_6h_RzFC8tVdpzc565A7mh6xxCvZp0dAuMrQ4cpSZzt8Jbi5rcpfK_y0Vpo6E_cYMTbx809nRq0nzmlv6t8ZiZYb-L&s=1",
+      "url": "https://l.facebook.com/l.php?u=https%3A%2F%2Fgo.nasa.gov%2Fdragonfly-names&h=AUCFk_q1_EBck8HPxlmo-YfW4aGBIuc-D_pKEahVhPptrwBHY27VaFKeYck1LW3uc2K2ubhAuGx0eikIjqebW_5Ya9KPCuT9yts8jBaTttqkAbHi89mwwrDWIHNRz0nWU0tL8SQmFRV4rykwHh7czwJYkth3YDwy6y-OLi9x&s=1",
+      "external_url": "http://go.nasa.gov/dragonfly-names",
+      "__isNode": "ExternalUrl",
+      "id": "NjQyMTgzOTU5MjA4MTA3Omh0dHBcYS8vZ28ubmFzYS5nb3YvZHJhZ29uZmx5LW5hbWVzOjo6OjoxNDk3MzgxNDM1Njg5OTg3Og=="
+     }
+    }
+   ]
+  },
+  "contextualElementShortFormContext": {
+   "video_label": null
+  },
+  "facebookId": "1497381435689987",
+  "pageName": "NASASolarSystem"
+ }
+]

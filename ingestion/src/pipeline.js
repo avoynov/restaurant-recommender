@@ -7,9 +7,11 @@
 import { assess, merge } from "./merge.js";
 import { MediaStore } from "./media.js";
 import { PRICE_PER_COMMENT_USD, PRICE_PER_POST_USD } from "./apify.js";
+import { platformOfKey } from "./canonical.js";
 import { ProviderError, blocked, configError, round, topComments } from "./util.js";
 
-export const defaults = { limit: 12, since: null, comments: 0, media: "covers", budgetUsd: null, dryRun: false };
+export const defaults = { limit: 12, since: null, comments: 0, linkComments: 0, listLimit: 100, media: "covers", budgetUsd: null, dryRun: false };
+const isInstagram = (x) => !x.platform || x.platform === "instagram";
 
 /** YYYY-MM-DD, ISO, or relative ("30 days", "6 months", "1 year") to YYYY-MM-DD. */
 export function parseSince(since, today = new Date()) {
@@ -40,7 +42,8 @@ class Budget {
 export class Pipeline {
   constructor(store, providers, { media = null, monthlyCapUsd = 5, runBudgetUsd = 1 } = {}) {
     this.store = store;
-    this.providers = providers;
+    this.providers = providers.filter(isInstagram);
+    this.linkProviders = providers.filter((p) => !isInstagram(p));
     this.media = media || new MediaStore(store.root);
     this.monthlyCapUsd = monthlyCapUsd;
     this.runBudgetUsd = runBudgetUsd;
@@ -48,17 +51,28 @@ export class Pipeline {
 
   async run(targets, options = {}) {
     const opts = { ...defaults, ...options };
-    const rep = { profiles: {}, posts: {}, spent_usd: 0, media_errors: [], estimate_usd: 0 };
+    const rep = { profiles: {}, posts: {}, links: {}, spent_usd: 0, media_errors: [], estimate_usd: 0 };
     const budget = new Budget(this.store, this.monthlyCapUsd, opts.budgetUsd ?? this.runBudgetUsd);
     const since = parseSince(opts.since);
-    const handles = [...new Set(targets.filter((t) => t.kind === "profile").map((t) => t.value))];
-    const codes = [...new Set(targets.filter((t) => t.kind === "post").map((t) => t.value))];
+    const ig = targets.filter(isInstagram);
+    const handles = [...new Set(ig.filter((t) => t.kind === "profile").map((t) => t.value))];
+    const codes = [...new Set(ig.filter((t) => t.kind === "post").map((t) => t.value))];
+    const byPlatform = new Map();
+    for (const t of targets.filter((x) => !isInstagram(x))) {
+      if (!byPlatform.has(t.platform)) byPlatform.set(t.platform, new Map());
+      byPlatform.get(t.platform).set(t.url, t); // dedupe by link
+    }
     rep.estimate_usd = estimateUsd(handles.length * opts.limit + codes.length, opts.comments);
+    for (const [platform, ts] of byPlatform) {
+      const prov = this.linkProviders.find((p) => p.platform === platform);
+      if (prov) rep.estimate_usd = round(rep.estimate_usd + prov.estimateLinks([...ts.values()], this.#linkOpts(opts)), 4);
+    }
     if (opts.dryRun) return rep;
 
     const touched = new Set();
     if (handles.length) await this.#profiles(handles, opts.limit, since, budget, rep, touched);
     if (codes.length) await this.#posts(codes, budget, rep, touched);
+    for (const [platform, ts] of byPlatform) await this.#links(platform, [...ts.values()], opts, budget, rep, touched);
     if (opts.comments > 0 && touched.size) await this.#deepenComments([...touched], opts.comments, budget, rep);
     for (const code of [...touched].sort()) await this.#finish(code, opts.media, rep);
     rep.spent_usd = round(rep.spent_usd, 4);
@@ -151,10 +165,64 @@ export class Pipeline {
     }
   }
 
+  #linkOpts(opts) {
+    return { comments: opts.linkComments, media: opts.media, listLimit: opts.listLimit };
+  }
+
+  /** TikTok, Facebook and Google Maps links: providers for the platform in fallback order. */
+  async #links(platform, targets, opts, budget, rep, touched) {
+    let remaining = targets;
+    const provs = this.linkProviders.filter((p) => p.platform === platform);
+    if (!provs.length) for (const t of targets) rep.links[t.url] = `no provider for ${platform}`;
+    for (const prov of provs) {
+      if (!remaining.length) break;
+      const est = prov.estimateLinks(remaining, this.#linkOpts(opts));
+      const left = Math.min(budget.monthLeft, budget.runLeft);
+      if (left < est || left < 0.01) {
+        for (const t of remaining) {
+          this.store.logAttempt(t.url, prov.name, "skipped", { detail: "budget exhausted" });
+          rep.links[t.url] = "skipped: budget exhausted";
+        }
+        continue;
+      }
+      const t0 = Date.now();
+      let results, cost = 0;
+      try {
+        ({ results, cost } = await prov.fetchLinks(remaining, this.#linkOpts(opts), budget.allowance(est)));
+      } catch (e) {
+        const err = e instanceof ProviderError ? e : blocked(e.message);
+        results = new Map(remaining.map((t) => [t.url, err]));
+      }
+      budget.spend(cost);
+      rep.spent_usd += cost;
+      const ms = Date.now() - t0;
+      const next = [];
+      const nOk = [...results.values()].reduce((n, r) => n + (r instanceof ProviderError ? 0 : r.posts.length), 0) || 1;
+      for (const t of remaining) {
+        const res = results.get(t.url) || blocked("no result");
+        if (res instanceof ProviderError) {
+          this.store.logAttempt(t.url, prov.name, res.errorClass, { detail: res.message, ms });
+          rep.links[t.url] = `${res.errorClass === "permanent" ? "UNAVAILABLE" : "failed"} via ${prov.name}: ${res.message}`;
+          if (res.errorClass !== "permanent") next.push(t);
+          continue;
+        }
+        this.store.logAttempt(t.url, prov.name, "ok", { ms, n_posts: res.posts.length, cost_usd: round((cost * res.posts.length) / nOk) });
+        res.posts.forEach((post, i) => {
+          this.#save(post, res.raw[i], prov.name);
+          if (t.kind === "list") this.store.addSource(post.shortcode, "maps_list", t.url);
+          else this.store.addSource(post.shortcode, "post_url", null);
+          touched.add(post.shortcode);
+        });
+        rep.links[t.url] = `ok via ${prov.name} (${res.posts.length} ${platform === "google_maps" ? "place" : "post"}${res.posts.length === 1 ? "" : "s"})`;
+      }
+      remaining = next;
+    }
+  }
+
   async #deepenComments(codes, perPost, budget, rep) {
     const apify = this.providers.find((p) => p.fetchComments);
     if (!apify) return;
-    const want = codes.filter((c) => {
+    const want = codes.filter((c) => platformOfKey(c) === "instagram").filter((c) => {
       const row = this.store.getPost(c);
       if (!row || row.provenance?.comments === "manual") return false;
       const have = row.record.comments?.length ?? 0;

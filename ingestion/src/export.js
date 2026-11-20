@@ -1,8 +1,11 @@
-// Handoff records (schema_version 1.0) for Dataset Population.
+// Handoff records (schema_version 1.1) for Dataset Population.
+//
+// 1.1 adds platform (instagram | tiktok | facebook | google_maps), platform_id, link, and place
+// (Google Maps records, type "place"). Non-Instagram keys are prefixed: tt_, fb_, gm_.
 //
 // One JSON line per (post, source). Follows the design doc's handoff contract, plus additive
 // fields consumers may ignore (status, missing, stats, is_pinned, product_type).
-// Internal fields (Instagram CDN links) are stripped: media is passed by storage key only.
+// Internal fields (CDN links) are stripped: media is passed by storage key only.
 
 import { createHash } from "node:crypto";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
@@ -10,11 +13,13 @@ import { dirname } from "node:path";
 import { SCHEMA_VERSION } from "./util.js";
 
 const MEDIA_KEYS = ["idx", "kind", "storage_key", "cover_storage_key", "mime", "bytes", "width", "height", "duration_s"];
-const POST_KEYS = ["shortcode", "url", "type", "author", "posted_at", "caption", "hashtags", "mentions",
-  "location", "comments", "media", "stats", "is_pinned", "product_type"];
+const POST_KEYS = ["platform", "shortcode", "platform_id", "url", "type", "author", "posted_at", "caption", "hashtags", "mentions",
+  "location", "place", "link", "comments", "media", "stats", "is_pinned", "product_type"];
 
 export function publicPost(record) {
   const out = Object.fromEntries(POST_KEYS.map((k) => [k, record[k] ?? null]));
+  out.platform ??= "instagram"; // records stored before schema 1.1
+  out.platform_id ??= out.shortcode;
   if (out.media) out.media = out.media.map((m) => Object.fromEntries(MEDIA_KEYS.map((k) => [k, m[k] ?? null])));
   return out;
 }

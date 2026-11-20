@@ -29,9 +29,10 @@ export function sniff(head) {
 }
 
 export class MediaStore {
-  constructor(root, { fetchFn = globalThis.fetch } = {}) {
+  constructor(root, { fetchFn = globalThis.fetch, apifyToken = null } = {}) {
     this.root = root;
     this.fetch = fetchFn;
+    this.apifyToken = apifyToken;
   }
 
   /** Save what the policy wants and isn't stored yet. Mutates record.media; returns error strings. */
@@ -63,7 +64,10 @@ export class MediaStore {
     await mkdir(dir, { recursive: true });
     const tmp = join(dir, `.${stem}.part`);
     try {
-      const r = await this.fetch(url, { headers: { "User-Agent": UA }, redirect: "follow" });
+      // TikTok videos and covers come back as Apify key-value store records, which need the token.
+      const headers = { "User-Agent": UA };
+      if (this.apifyToken && new URL(url).hostname === "api.apify.com") headers.Authorization = `Bearer ${this.apifyToken}`;
+      const r = await this.fetch(url, { headers, redirect: "follow" });
       if (r.status !== 200) throw new Error(`HTTP ${r.status}`);
       if (Number(r.headers.get("content-length") || 0) > MAX_BYTES) throw new Error("too large");
       const fh = await open(tmp, "w");

@@ -12,11 +12,12 @@ import {
   toFloat, toInt, topComments, transient,
 } from "./util.js";
 
-const API = "https://api.apify.com/v2";
+export const API = "https://api.apify.com/v2";
 export const POSTS_ACTOR = "apify~instagram-scraper";
 export const COMMENTS_ACTOR = "apify~instagram-comment-scraper";
 export const PRICE_PER_POST_USD = 0.0027;
 export const PRICE_PER_COMMENT_USD = 0.0026;
+export const MAX_CAP_FLOOR_USD = 1;
 
 const TERMINAL = new Set(["SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"]);
 const PERMANENT_HINTS = ["not_found", "not found", "private", "doesn't exist", "does not exist", "no_items", "restricted"];
@@ -132,7 +133,9 @@ export class ApifyProvider {
     else if (nComments === 0 || item.isCommentsDisabled) commentsVal = [];
 
     return {
+      platform: "instagram",
       shortcode: code,
+      platform_id: code,
       url: postUrl(code),
       type,
       author: { username: item.ownerUsername || null, full_name: item.ownerFullName || null, is_business: null },
@@ -154,8 +157,18 @@ export class ApifyProvider {
   // ---- HTTP plumbing ------------------------------------------------------------------------
 
   async run(actor, input, maxChargeUsd, unitPrice = this.pricePerPost) {
-    const qs = new URLSearchParams({ timeout: String(this.runTimeoutS), maxTotalChargeUsd: maxChargeUsd.toFixed(4) });
-    let { data: run } = await this.request("POST", `/acts/${actor}/runs?${qs}`, input);
+    // Some actors refuse a cap below their minimum (often $0.50). The cap is only a ceiling: the
+    // charge is still per result, so we raise it to the minimum, up to MAX_CAP_FLOOR_USD.
+    const qs = new URLSearchParams({ timeout: String(this.runTimeoutS), maxTotalChargeUsd: Math.max(maxChargeUsd, this.minChargeUsd || 0).toFixed(4) });
+    let run;
+    try {
+      ({ data: run } = await this.request("POST", `/acts/${actor}/runs?${qs}`, input));
+    } catch (e) {
+      const min = Number(/minimum of \$?([\d.]+)/i.exec(e.message)?.[1]);
+      if (!(min > 0 && min <= MAX_CAP_FLOOR_USD)) throw e;
+      qs.set("maxTotalChargeUsd", min.toFixed(4));
+      ({ data: run } = await this.request("POST", `/acts/${actor}/runs?${qs}`, input));
+    }
     const deadline = Date.now() + (this.runTimeoutS + 120) * 1000;
     while (!TERMINAL.has(run.status)) {
       if (Date.now() > deadline) throw transient(`apify run ${run.id} did not finish in time`);
@@ -222,7 +235,7 @@ async function httpError(r) {
   return blocked(msg);
 }
 
-function itemError(item) {
+export function itemError(item) {
   const text = [item.error, item.errorDescription].filter(Boolean).join(": ");
   return PERMANENT_HINTS.some((k) => text.toLowerCase().includes(k)) ? permanent(text) : blocked(text);
 }
