@@ -1,7 +1,7 @@
 // Service worker: makes the app installable and opens instantly offline.
 // App shell is cache-first and refreshed in the background; saved data and media
 // (data/) always go to the network first so new posts show up, with the cache as fallback.
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {

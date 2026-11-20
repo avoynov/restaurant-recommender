@@ -91,6 +91,10 @@ table.list th { color: var(--muted); font-weight: 500; border-top: 0; }
 .coll { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
 footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
 .setup { display: none; } .setup.show { display: block; }
+.plat { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.6); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+.tile .img.noimg { display: flex; align-items: center; justify-content: center; font: 600 40px Fraunces, Georgia, serif; color: var(--muted); }
+.stars { color: var(--warn); font-weight: 600; }
+.platforms { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -98,7 +102,8 @@ footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
   <header>
     <div>
       <h1>Taste <em>Ingest</em></h1>
-      <p class="sub">Share an Instagram post or a whole collection. We fetch it, save the photos and videos as our own files, and show them back from our copy.</p>
+      <p class="sub">Share a post from Instagram, TikTok or Facebook, or a Google Maps place or list. We fetch it, save the photos and videos as our own files, and show them back from our copy.</p>
+      <div class="platforms"><span class="pill">Instagram</span><span class="pill">TikTok</span><span class="pill">Facebook</span><span class="pill">Google Maps</span></div>
     </div>
     <div class="actions" style="margin:0">
       <button class="primary" id="installBtn" type="button" hidden>Install app</button>
@@ -121,7 +126,7 @@ footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
   <div class="card setup" id="installHelp">
     <h2>Use it like an app</h2>
     <div id="installAndroid">
-      <p><b>Android (Chrome):</b> tap <b>Install app</b> above, or the browser menu → <b>Install app</b>. After that, "Taste" appears in Instagram's <b>Share → Share to…</b> list: pick it and the post is fetched straight away.</p>
+      <p><b>Android (Chrome):</b> tap <b>Install app</b> above, or the browser menu → <b>Install app</b>. After that, "Taste" appears in the share menu of Instagram, TikTok, Facebook and Google Maps (<b>Share → more</b>): pick it and the link is fetched straight away.</p>
     </div>
     <div id="installIos">
       <p><b>iPhone:</b> in Safari tap <b>Share → Add to Home Screen</b>. iPhone web apps can't appear in the share menu, so add this one-tap Shortcut for sharing:</p>
@@ -131,28 +136,31 @@ footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
         <li>Add the action <b>URL Encode</b> (input: <i>Shortcut Input</i>).</li>
         <li>Add <b>Text</b>: <code id="shortcutUrl"></code> followed by the <i>URL Encoded Text</i> variable.</li>
         <li>Add <b>Open URLs</b> (input: that Text).</li>
-        <li>In Instagram: <b>Share → (more) → Send to Taste</b>.</li>
+        <li>In Instagram, TikTok, Facebook or Google Maps: <b>Share → (more) → Send to Taste</b>.</li>
       </ol>
       <p class="hint">The Shortcut opens Safari, which keeps its own copy of the access key, so paste your token there once too.</p>
     </div>
   </div>
 
   <nav class="tabs" role="tablist">
-    <button class="tab" role="tab" data-tab="share" aria-selected="true">Share a post</button>
+    <button class="tab" role="tab" data-tab="share" aria-selected="true">Share a link</button>
     <button class="tab" role="tab" data-tab="collection" aria-selected="false">Collection</button>
-    <button class="tab" role="tab" data-tab="library" aria-selected="false">Saved posts <span id="libCount" class="pill">0</span></button>
+    <button class="tab" role="tab" data-tab="library" aria-selected="false">Saved <span id="libCount" class="pill">0</span></button>
     <button class="tab" role="tab" data-tab="runs" aria-selected="false">Runs</button>
   </nav>
 
   <!-- Share -->
   <section data-panel="share">
     <div class="card">
-      <h2>Share a post or reel</h2>
-      <label for="shareUrls">Instagram link(s), one per line</label>
-      <textarea id="shareUrls" placeholder="https://www.instagram.com/reel/..."></textarea>
+      <h2>Share a post, video or place</h2>
+      <label for="shareUrls">Links, one per line</label>
+      <textarea id="shareUrls" placeholder="https://www.instagram.com/reel/...&#10;https://www.tiktok.com/@.../video/...&#10;https://www.facebook.com/reel/...&#10;https://maps.app.goo.gl/..."></textarea>
+      <p class="hint">Instagram posts and reels, TikTok videos (short links too), public Facebook posts and reels, Google Maps places and shared lists. Private lists and friends-only posts can't be read.</p>
       <div class="row">
-        <div><label for="shareN">Top comments to keep</label><input type="number" id="shareN" min="0" max="50" value="10">
-          <p class="hint">Up to 10 come free with each post. Each extra comment costs about $0.0026.</p></div>
+        <div><label for="shareN">Top comments or reviews to keep</label><input type="number" id="shareN" min="0" max="50" value="10">
+          <p class="hint">Instagram: 10 free per post. TikTok about $0.0013 and Facebook $0.0025 per comment; Maps reviews $0.0002.</p></div>
+        <div><label for="shareLimit">Places per Maps list</label><input type="number" id="shareLimit" min="1" max="500" value="100">
+          <p class="hint">About $0.001 per place with photos.</p></div>
         <div><label><input type="checkbox" id="shareVideo" checked> Save full videos</label>
           <p class="hint">Off saves photos and video cover images only.</p></div>
       </div>
@@ -182,9 +190,15 @@ footer { color: var(--muted); font-size: 13px; padding: 32px 0 48px; }
     </div>
 
     <div class="card">
-      <h2>From your saved collections</h2>
-      <p class="hint">Instagram only shows saved collections to their owner, so we can't open a collection link without logging in (which we never do). Instead, download your data from Instagram (Accounts Center → Your information and permissions → Export your information → Saved, format <b>JSON</b>) and drop the ZIP or <code>saved_collections.json</code> / <code>saved_posts.json</code> here. It is read in your browser; only the post links are sent.</p>
-      <input type="file" id="exportFile" accept=".zip,.json">
+      <h2>From your saved items</h2>
+      <p class="hint">Saved collections, favourites and private lists are only visible to their owner, so we can't open them without logging in (which we never do). Download your data instead and drop the ZIP, JSON or CSV here. It is read in your browser; only the links are sent.</p>
+      <ul class="hint" style="font-size:13px;line-height:1.6;padding-left:18px">
+        <li><b>Instagram:</b> Accounts Center → Your information and permissions → Export your information → Saved, format <b>JSON</b>.</li>
+        <li><b>TikTok:</b> Settings → Account → Download your data, format <b>JSON</b> (favourite and liked videos).</li>
+        <li><b>Facebook:</b> Accounts Center → Export your information → Saved items and collections, format <b>JSON</b>.</li>
+        <li><b>Google Maps:</b> <a href="https://takeout.google.com/" target="_blank" rel="noopener">Google Takeout</a> → <b>Saved</b> (one CSV per list) and <b>Maps (your places)</b>. A list you've shared can simply be pasted in Share a link.</li>
+      </ul>
+      <input type="file" id="exportFile" accept=".zip,.json,.csv">
       <div id="collections"></div>
       <div class="status" id="collStatus"></div>
     </div>
@@ -320,10 +334,12 @@ function resultSummary(st) {
   const posts = st.posts || {};
   const codes = Object.keys(posts);
   const ok = codes.filter((c) => posts[c].startsWith("COMPLETE")).length;
-  let html = `<b>${ok} of ${codes.length}</b> post(s) saved completely · spent $${(st.spent_usd || 0).toFixed(4)}`;
+  let html = `<b>${ok} of ${codes.length}</b> item(s) saved completely · spent $${(st.spent_usd || 0).toFixed(4)}`;
+  const failed = Object.entries(st.links || {}).filter(([, v]) => !v.startsWith("ok"));
+  if (failed.length) html += `<br><span class="hint">Not fetched: ${failed.slice(0, 5).map(([u, v]) => `${esc(u)}: ${esc(v)}`).join("; ")}</span>`;
   if ((st.rejected || []).length) html += `<br><span class="hint">Skipped: ${st.rejected.map(esc).join("; ")}</span>`;
   if ((st.media_errors || []).length) html += `<br><span class="hint">Media errors: ${st.media_errors.length}</span>`;
-  html += `<div class="actions">${codes.slice(0, 6).map((c) => `<button class="ghost" type="button" data-open="${esc(c)}">Open ${esc(c)}</button>`).join("")}</div>`;
+  html += `<div class="actions">${codes.slice(0, 6).map((c) => `<button class="ghost" type="button" data-open="${esc(c)}">Open ${esc(shortLabel(c))}</button>`).join("")}</div>`;
   return html;
 }
 document.addEventListener("click", (e) => { const c = e.target.closest("[data-open]"); if (c) openPost(c.dataset.open); });
@@ -335,8 +351,9 @@ $("#shareGo").onclick = async () => {
   if (!urls.length) return say(el, "Paste at least one post or reel link.", "bad");
   $("#shareGo").disabled = true;
   try {
-    const st = await submit("posts", { urls, comments: +$("#shareN").value || 0, media: $("#shareVideo").checked ? "all" : "covers" }, el);
-    if (st && st.state === "done") { say(el, resultSummary(st), "ok"); if (Object.keys(st.posts || {}).length === 1) openPost(Object.keys(st.posts)[0]); }
+    const comments = +$("#shareN").value || 0, limit = Math.max(1, Math.min(500, +$("#shareLimit").value || 100));
+    const st = await submit("posts", { urls, comments, limit, media: $("#shareVideo").checked ? "all" : "covers", budget_usd: Math.max(1, +(linkCost(urls, comments, limit) * 1.3).toFixed(2)) }, el);
+    if (st && st.state === "done") { say(el, resultSummary(st), "ok"); if (Object.keys(st.posts || {}).length === 1 && !st.media_errors?.length) openPost(Object.keys(st.posts)[0]); }
   } catch (e) { say(el, esc(e.message), "bad"); }
   $("#shareGo").disabled = false;
 };
@@ -358,7 +375,6 @@ $("#profCount").onclick = async () => {
   } catch (e) { say(el, esc(e.message), "bad"); }
   $("#profCount").disabled = false;
 };
-function estimate(n, comments) { return n * (0.0027 + Math.max(0, comments - 10) * 0.0026); }
 function updateEstimate() {
   const n = +$("#profLimit").value || 0, c = +$("#profN").value || 0;
   $("#profEstimate").textContent = `Estimated Apify cost: about $${estimate(n, c).toFixed(2)} for ${n} posts with ${c} comments each (free plan includes $5 a month).`;
@@ -375,25 +391,62 @@ $("#profGo").onclick = async () => {
   $("#profGo").disabled = false;
 };
 
-// Export upload: parse saved collections in the browser
+// ---- links on every platform (the runner does the strict parsing) ------------------------------
+const PLATFORM_NAMES = { instagram: "Instagram", tiktok: "TikTok", facebook: "Facebook", google_maps: "Google Maps" };
+function platformOf(u) {
+  let h, path;
+  try { const x = new URL(u); h = x.hostname.toLowerCase().replace(/^www\./, ""); path = x.pathname; } catch { return null; }
+  if (/(^|\.)instagram\.com$|^instagr\.am$/.test(h)) return /\/(p|reel|reels|tv)\/[A-Za-z0-9_-]{5,}/.test(path) ? "instagram" : null;
+  if (/(^|\.)tiktok(v)?\.com$/.test(h)) return /^(vm|vt)\./.test(h) || /^\/t\//.test(path) || /\/(video|photo|v)\/\d{10,}/.test(path) ? "tiktok" : null;
+  if (/(^|\.)(facebook\.com|fb\.com|fb\.watch)$/.test(h)) return /\/(posts|reel|videos|watch|share|photo|permalink)|story_fbid/.test(path + new URL(u).search) && path !== "/" || h === "fb.watch" ? "facebook" : null;
+  if (h === "maps.app.goo.gl" || (h === "goo.gl" && path.startsWith("/maps"))) return "google_maps";
+  if (/^(maps\.)?google\.[a-z.]+$/.test(h) && (h.startsWith("maps.") || path.startsWith("/maps")) && /\/place\/|placelists|cid=|q=|ftid=|query_place_id/.test(path + new URL(u).search)) return "google_maps";
+  return null;
+}
+const cleanUrl = (u) => u.replace(/[),.;!?]+$/, "");
+function findLinks(text) { return [...new Set((String(text).match(/https?:\/\/[^\s"'<>]+/g) || []).map(cleanUrl).filter(platformOf))]; }
+function linkCost(urls, comments = 10, listLimit = 100) {
+  return urls.reduce((sum, u) => sum + ({
+    instagram: 0.0027 + Math.max(0, comments - 10) * 0.0026,
+    tiktok: 0.005 + comments * 0.00125,
+    facebook: 0.005 + (comments ? 0.001 + comments * 0.0025 : 0),
+    google_maps: (/placelists/.test(u) ? listLimit : 1) * (0.0009 + comments * 0.0002),
+  }[platformOf(u)] || 0), 0);
+}
+const estimate = (n, comments) => n * (0.0027 + Math.max(0, comments - 10) * 0.0026); // Instagram profiles
+const shortLabel = (c) => c.startsWith("tt_") ? "TikTok " + c.slice(3, 10) + "…" : c.startsWith("fb_") ? "Facebook " + c.slice(3, 10) + "…" : c.startsWith("gm_") ? "place " + c.slice(3, 10) + "…" : c;
+
+// Export upload: saved items from each platform's data download, read in the browser
 const POST_RE = /instagram\.com\/(?:[A-Za-z0-9._]+\/)?(?:p|reel|reels|tv)\/([A-Za-z0-9_-]{5,})/;
+function csvRows(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+    else if (c === '"') q = true; else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
 $("#exportFile").onchange = async (e) => {
   const f = e.target.files[0]; if (!f) return;
   const el = $("#collStatus");
   try {
     const files = {};
-    if (f.name.endsWith(".zip")) {
+    if (f.name.toLowerCase().endsWith(".zip")) {
       const zip = await JSZip.loadAsync(f);
       for (const name of Object.keys(zip.files)) {
-        const base = name.split("/").pop();
-        if (base === "saved_collections.json" || base === "saved_posts.json") files[base] = JSON.parse(await zip.files[name].async("string"));
+        if (zip.files[name].dir || !/\.(json|csv)$/i.test(name) || /\/(media|photos_and_videos|messages|inbox)\//i.test(name)) continue;
+        files[name] = await zip.files[name].async("string");
       }
       if (!Object.keys(files).length) {
-        const html = Object.keys(zip.files).some((n) => n.endsWith("saved_posts.html"));
-        throw new Error(html ? "This export is in HTML. Request it again with format JSON." : "No saved_posts.json or saved_collections.json in this ZIP.");
+        const html = Object.keys(zip.files).some((n) => n.endsWith(".html"));
+        throw new Error(html ? "This export is in HTML. Request it again with format JSON." : "No JSON or CSV files in this ZIP.");
       }
     } else {
-      files[f.name] = JSON.parse(await f.text());
+      files[f.name] = await f.text();
     }
     renderCollections(parseExport(files));
     el.className = "status";
@@ -401,34 +454,71 @@ $("#exportFile").onchange = async (e) => {
 };
 function parseExport(files) {
   const groups = new Map();
-  const add = (name, url) => { const m = url && url.match(POST_RE); if (!m) return; if (!groups.has(name)) groups.set(name, new Set()); groups.get(name).add(`https://www.instagram.com/p/${m[1]}/`); };
-  for (const [fname, data] of Object.entries(files)) {
-    const isColl = fname.includes("collections");
-    let current = isColl ? "Unnamed collection" : "All saved posts";
-    const items = data.saved_saved_collections || data.saved_saved_media || (Array.isArray(data) ? data : Object.values(data).find(Array.isArray) || []);
-    for (const it of items) {
-      const smd = it.string_map_data || {};
-      const nameField = smd.Name || smd.name;
-      const urls = [];
-      (function walk(o) { if (!o || typeof o !== "object") return; for (const v of Object.values(o)) { if (typeof v === "string" && POST_RE.test(v)) urls.push(v); else walk(v); } })(it);
-      if (isColl && nameField && nameField.value && !urls.length) { current = nameField.value; continue; }
-      if (isColl && it.title && !urls.length && !nameField) { current = it.title; continue; }
-      urls.forEach((u) => add(current, u));
+  const add = (name, url) => {
+    url = cleanUrl(url);
+    const m = url.match(POST_RE);
+    if (m) url = `https://www.instagram.com/p/${m[1]}/`;
+    else if (!platformOf(url)) return;
+    if (!groups.has(name)) groups.set(name, new Set());
+    groups.get(name).add(url);
+  };
+  for (const [fname, raw] of Object.entries(files)) {
+    const base = fname.split("/").pop();
+    const stem = base.replace(/\.(json|csv)$/i, "");
+    if (/\.csv$/i.test(base)) { // Google Takeout: Saved/<list name>.csv
+      for (const row of csvRows(raw)) for (const cell of row) for (const u of findLinks(cell)) add(`Google Maps: ${stem}`, u);
+      continue;
     }
+    let data; try { data = JSON.parse(raw); } catch { continue; }
+    if (base === "saved_collections.json" || base === "saved_posts.json") { instagramExport(base, data, add); continue; }
+    // TikTok, Facebook, Google "Saved Places.json": group by the section each link sits in
+    (function walk(o, label) {
+      if (typeof o === "string") { for (const u of findLinks(o)) add(label, u); return; }
+      if (!o || typeof o !== "object") return;
+      if (Array.isArray(o)) { o.forEach((v) => walk(v, label)); return; }
+      const named = o.name || o.title || o.Title;
+      for (const [k, v] of Object.entries(o)) {
+        let next = label;
+        if (!label.includes(":") && /favou?rite|like list|liked|collection|saved/i.test(k) && v && typeof v === "object") next = `${prettySource(fname)}: ${k.replace(/_/g, " ")}`;
+        else if (Array.isArray(v) && typeof named === "string" && named.length < 80 && /collection/i.test(fname)) next = `${prettySource(fname)}: ${named}`;
+        walk(v, next);
+      }
+    })(data, prettySource(fname));
   }
   return [...groups].map(([name, set]) => ({ name, urls: [...set] }));
 }
+function prettySource(fname) {
+  if (/saved places/i.test(fname)) return "Google Maps: Saved places";
+  if (/tiktok/i.test(fname)) return "TikTok";
+  if (/saved_items|collections|facebook/i.test(fname)) return "Facebook";
+  return fname.split("/").pop().replace(/\.json$/i, "");
+}
+function instagramExport(fname, data, add) {
+  const isColl = fname.includes("collections");
+  let current = isColl ? "Unnamed collection" : "All saved posts";
+  const items = data.saved_saved_collections || data.saved_saved_media || (Array.isArray(data) ? data : Object.values(data).find(Array.isArray) || []);
+  for (const it of items) {
+    const smd = it.string_map_data || {};
+    const nameField = smd.Name || smd.name;
+    const urls = [];
+    (function walk(o) { if (!o || typeof o !== "object") return; for (const v of Object.values(o)) { if (typeof v === "string" && POST_RE.test(v)) urls.push(v); else walk(v); } })(it);
+    if (isColl && nameField && nameField.value && !urls.length) { current = nameField.value; continue; }
+    if (isColl && it.title && !urls.length && !nameField) { current = it.title; continue; }
+    urls.forEach((u) => add(current, u));
+  }
+}
 function renderCollections(groups) {
   const box = $("#collections");
-  if (!groups.length) { box.innerHTML = `<p class="empty">No post links found in that file.</p>`; return; }
+  if (!groups.length) { box.innerHTML = `<p class="empty">No Instagram, TikTok, Facebook or Google Maps links found in that file.</p>`; return; }
   box.innerHTML = `<div class="row" style="margin-top:12px"><div><label for="collN">Top comments to keep</label><input type="number" id="collN" min="0" max="50" value="10"></div></div>` +
-    groups.map((g, i) => `<div class="coll"><div><b>${esc(g.name)}</b><br><span class="hint">${g.urls.length} post${g.urls.length === 1 ? "" : "s"} · about $${estimate(g.urls.length, 10).toFixed(2)}</span></div>
+    groups.map((g, i) => `<div class="coll"><div><b>${esc(g.name)}</b><br><span class="hint">${g.urls.length} link${g.urls.length === 1 ? "" : "s"} · about $${linkCost(g.urls, 10).toFixed(2)}${g.urls.length > 500 ? " · first 500" : ""}</span></div>
       <button class="primary" type="button" data-coll="${i}">Proceed</button></div>`).join("");
   box.querySelectorAll("[data-coll]").forEach((b) => b.onclick = async () => {
     const g = groups[+b.dataset.coll]; const el = $("#collStatus"); b.disabled = true;
     const comments = +$("#collN").value || 0;
     try {
-      const st = await submit("posts", { urls: g.urls.slice(0, 500), comments, media: "all", label: g.name, budget_usd: Math.max(1, +(estimate(g.urls.length, comments) * 1.3).toFixed(2)) }, el);
+      const urls = g.urls.slice(0, 500);
+      const st = await submit("posts", { urls, comments, media: "all", label: g.name, budget_usd: Math.max(1, +(linkCost(urls, comments) * 1.3).toFixed(2)) }, el);
       if (st && st.state === "done") say(el, `<b>${esc(g.name)}</b>: ` + resultSummary(st), "ok");
     } catch (e) { say(el, esc(e.message), "bad"); }
     b.disabled = false;
@@ -450,15 +540,20 @@ function renderLibrary() {
   const posts = (INDEX && INDEX.posts) || [];
   $("#libCount").textContent = posts.length;
   const q = $("#libFilter").value.trim().toLowerCase();
-  const shown = posts.filter((p) => !q || [p.author, p.caption, p.location, ...(p.sources || []).map((s) => s.handle)].join(" ").toLowerCase().includes(q));
-  $("#grid").innerHTML = shown.length ? shown.map((p) => `
+  const shown = posts.filter((p) => !q || [p.author, p.caption, p.location, p.place?.name, p.place?.category, PLATFORM_NAMES[p.platform || "instagram"], ...(p.sources || []).map((s) => s.handle)].join(" ").toLowerCase().includes(q));
+  $("#grid").innerHTML = shown.length ? shown.map((p) => {
+    const pl = p.place;
+    const who = pl ? esc(pl.name || "Place") : p.platform === "facebook" ? esc(p.author || "?") : "@" + esc(p.author || "?");
+    const cap = pl ? `${pl.rating ? `<span class="stars">★ ${pl.rating}</span> · ` : ""}${esc([pl.category, pl.price_level && pl.price_level.length < 12 ? pl.price_level : null].filter(Boolean).join(" · "))}<br>${esc(pl.address || "")}` : esc(p.caption || "No caption");
+    return `
     <button class="tile" type="button" data-open="${esc(p.shortcode)}">
-      <div class="img" style="background-image:url('${p.thumb ? DATA + esc(p.thumb) : ""}')">
-        ${p.has_video ? '<span class="badge">▶ video saved</span>' : p.n_media > 1 ? `<span class="badge">${p.n_media} items</span>` : ""}
+      <div class="img${p.thumb ? "" : " noimg"}" style="${p.thumb ? `background-image:url('${DATA + esc(p.thumb)}')` : ""}">${p.thumb ? "" : esc((pl?.name || p.author || "?").slice(0, 1).toUpperCase())}
+        ${p.has_video ? '<span class="badge">▶ video saved</span>' : p.n_media > 1 ? `<span class="badge">${p.n_media} ${pl ? "photos" : "items"}</span>` : ""}
+        <span class="plat">${esc(PLATFORM_NAMES[p.platform || "instagram"])}</span>
       </div>
-      <div class="meta"><div class="who">@${esc(p.author || "?")} ${p.status === "COMPLETE" ? "" : '<span class="pill warn">partial</span>'}</div>
-      <div class="cap">${esc(p.caption || "No caption")}</div></div>
-    </button>`).join("") : `<p class="empty">${posts.length ? "Nothing matches." : "Nothing saved yet. Share a post to start."}</p>`;
+      <div class="meta"><div class="who">${who} ${p.status === "COMPLETE" ? "" : '<span class="pill warn">partial</span>'}</div>
+      <div class="cap">${cap}</div></div>
+    </button>`; }).join("") : `<p class="empty">${posts.length ? "Nothing matches." : "Nothing saved yet. Share a link to start."}</p>`;
   if (INDEX) $("#generated").textContent = `· Data updated ${new Date(INDEX.generated_at).toLocaleString()}`;
 }
 $("#libFilter").oninput = renderLibrary;
@@ -469,7 +564,7 @@ function renderRuns() {
   $("#runsTable").innerHTML = reqs.length ? `<table class="list"><tr><th>When</th><th>Kind</th><th>State</th><th>Result</th></tr>` +
     reqs.map((r) => `<tr><td>${esc((r.finished_at || r.started_at || "").replace("T", " ").replace("Z", ""))}</td><td>${esc(r.kind)}</td>
       <td><span class="pill ${r.state === "done" ? "ok" : r.state === "failed" ? "bad" : "warn"}">${esc(r.state)}</span></td>
-      <td>${r.error ? esc(r.error) : r.profile ? `@${esc(r.profile.handle)}: ${r.profile.post_count} posts` : `${Object.keys(r.posts || {}).length} posts · $${(r.spent_usd || 0).toFixed(4)}`}</td></tr>`).join("") + `</table>`
+      <td>${r.error ? esc(r.error) : r.profile ? `@${esc(r.profile.handle)}: ${r.profile.post_count} posts` : `${Object.keys(r.posts || {}).length} saved · $${(r.spent_usd || 0).toFixed(4)}`}</td></tr>`).join("") + `</table>`
     : `<p class="empty">No runs yet.</p>`;
   if (INDEX) $("#spend").textContent = `Apify spend this month: $${(INDEX.spend || 0).toFixed(2)} of the $5 cap.`;
 }
@@ -494,20 +589,38 @@ async function openPost(code) {
     const saved = $("#dSaved");
     if (saved) saved.innerHTML = m.storage_key ? `✓ Served from our saved file <code>${esc(m.storage_key)}</code>${m.bytes ? ` (${(m.bytes / 1048576).toFixed(1)} MB, ${esc(m.mime)})` : ""}` : m.cover_storage_key ? `✓ Cover saved as <code>${esc(m.cover_storage_key)}</code>; full video not saved` : "Not saved";
   };
-  const loc = p.location;
-  $("#dInfo").innerHTML = `
+  const loc = p.location, pl = p.place, platform = PLATFORM_NAMES[p.platform || "instagram"];
+  const link = (u, t) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t || u)}</a>` : "";
+  $("#dInfo").innerHTML = pl ? `
     <button class="close" type="button" aria-label="Close">×</button>
-    <h2>@${esc(p.author?.username || "?")}</h2>
+    <h2>${esc(pl.name || "Place")}</h2>
+    <p>${pl.rating ? `<span class="stars">★ ${pl.rating}</span> (${pl.review_count ?? "?"} reviews) · ` : ""}${esc((pl.categories || []).slice(0, 3).join(", "))}</p>
+    ${p.caption ? `<p class="hint" style="white-space:pre-wrap">${esc(p.caption)}</p>` : ""}
+    <div class="saved" id="dSaved"></div>
+    <dl class="kv">
+      <dt>Address</dt><dd>${esc(pl.address || "unknown")}</dd>
+      <dt>Price</dt><dd>${esc(pl.price_level || "unknown")}</dd>
+      <dt>Status</dt><dd>${pl.permanently_closed ? '<span class="pill bad">permanently closed</span>' : "open business"}</dd>
+      <dt>Phone</dt><dd>${esc(pl.phone || "none")}</dd>
+      <dt>Website</dt><dd>${link(pl.website, (pl.website || "").replace(/^https?:\/\/(www\.)?/, "").split(/[/?]/)[0]) || "none"}</dd>
+      <dt>Saved in</dt><dd>${esc((rec.sources || []).map((s) => s.kind === "maps_list" ? "a shared list" : s.handle || s.kind).filter(Boolean).join(", ") || "shared link")}</dd>
+      <dt>Record</dt><dd><a href="${DATA}posts/${esc(p.shortcode)}.json" target="_blank" rel="noopener">JSON for the AI step</a> · ${link(p.url, "Google Maps")}${pl.lat != null ? ` · ${link(`https://www.openstreetmap.org/?mlat=${pl.lat}&mlon=${pl.lng}#map=17/${pl.lat}/${pl.lng}`, "map")}` : ""}</dd>
+    </dl>
+    <h2 style="font-size:17px">Reviews (${(p.comments || []).length})</h2>
+    <ul class="comments">${(p.comments || []).map((c) => `<li>${c.rating ? `<span class="stars">★ ${c.rating}</span> ` : ""}${esc(c.text)} <span class="likes">${esc((c.created_at || "").slice(0, 10))}</span></li>`).join("") || "<li class='hint'>None saved</li>"}</ul>` : `
+    <button class="close" type="button" aria-label="Close">×</button>
+    <h2>${p.platform === "facebook" ? "" : "@"}${esc(p.author?.username || "?")} <span class="pill">${esc(platform)}</span></h2>
     <p style="white-space:pre-wrap">${esc(p.caption || "No caption")}</p>
     <div class="saved" id="dSaved"></div>
     <dl class="kv">
       <dt>Type</dt><dd>${esc(p.type)} · ${media.length} item(s)</dd>
       <dt>Posted</dt><dd>${esc(p.posted_at?.replace("T", " ").replace("Z", " UTC") || "unknown")}</dd>
       <dt>Location</dt><dd>${loc ? esc(loc.name) : "No location tag"}</dd>
+      ${p.link ? `<dt>Link</dt><dd>${link(p.link)}</dd>` : ""}
       <dt>Hashtags</dt><dd>${esc((p.hashtags || []).join(" ") || "none")}</dd>
       <dt>Stats</dt><dd>${p.stats?.like_count ?? "?"} likes · ${p.stats?.comment_count ?? "?"} comments${p.stats?.view_count ? ` · ${p.stats.view_count} plays` : ""}</dd>
       <dt>Status</dt><dd><span class="pill ${rec.status === "COMPLETE" ? "ok" : "warn"}">${esc(rec.status)}</span> ${rec.missing?.length ? "missing: " + esc(rec.missing.join(", ")) : ""}</dd>
-      <dt>Record</dt><dd><a href="${DATA}posts/${esc(p.shortcode)}.json" target="_blank" rel="noopener">JSON for the AI step</a> · <a href="${esc(p.url)}" target="_blank" rel="noopener">original</a></dd>
+      <dt>Record</dt><dd><a href="${DATA}posts/${esc(p.shortcode)}.json" target="_blank" rel="noopener">JSON for the AI step</a> · <a href="${esc(p.url)}" target="_blank" rel="noopener">original on ${esc(platform)}</a></dd>
     </dl>
     <h2 style="font-size:17px">Top comments (${(p.comments || []).length})</h2>
     <ul class="comments">${(p.comments || []).map((c) => `<li>${esc(c.text)} <span class="likes">♥ ${c.like_count ?? 0}</span></li>`).join("") || "<li class='hint'>None</li>"}</ul>`;
@@ -518,16 +631,16 @@ async function openPost(code) {
 $("#dlg").addEventListener("click", (e) => { if (e.target === $("#dlg")) $("#dlg").close(); });
 function alertBox(msg) { const el = $("#shareStatus"); say(el, esc(msg), "bad"); selectTab("share"); }
 
-// ---- shared from Instagram (Android share target, iOS Shortcut, or a plain ?text= link) ----------
+// ---- shared from another app (Android share target, iOS Shortcut, or a plain ?text= link) --------
 (function handleShare() {
   const q = new URLSearchParams(location.search);
   const blob = ["url", "text", "title"].map((k) => q.get(k) || "").join(" ");
-  const links = [...new Set((blob.match(/https?:\/\/(?:www\.)?(?:instagram\.com|instagr\.am)\/[^\s"'<>]+/g) || []))];
+  const links = findLinks(blob);
   if (!q.has("url") && !q.has("text") && !q.has("title")) return;
   history.replaceState(null, "", location.pathname); // don't resubmit on reload
   selectTab("share");
   const el = $("#shareStatus");
-  if (!links.length) { say(el, "That share didn't include an Instagram post link.", "bad"); return; }
+  if (!links.length) { say(el, "That share didn't include an Instagram, TikTok, Facebook or Google Maps link.", "bad"); return; }
   $("#shareUrls").value = links.join("\n");
   if (!token()) { showSetup(true); say(el, "Add your access key, then press Fetch and save.", "bad"); return; }
   $("#shareGo").click();
